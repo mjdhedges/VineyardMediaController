@@ -1,0 +1,17 @@
+{
+  "name": "VineyardMediaController",
+  "version": "0.0.1",
+  "description": "Control for behringer X32 & Announcements",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Michael Hedges",
+  "license": "ISC",
+  "dependencies": {
+    "express": "~4.10.4",
+    "later": "^1.1.6",
+    "node-osc": "^0.3.0",
+    "socket.io": "~1.2.1"
+  }
+}

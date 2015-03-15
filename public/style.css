@@ -1,0 +1,32 @@
+@media only screen and (min-width: 800px){
+  .ui-content {
+   width: 800px !important;
+   margin: 0 auto !important;
+   position: relative !important;
+}
+
+#date {
+  color: black;
+  text-align: center;
+}
+
+.ui-slider-input {
+    width: 100px;
+}
+
+#countdown {
+  text-align: center;
+  color: purple;
+  border: solid;
+  padding: 20px;
+  font-size: 30px;
+  font-weight: bold;
+}
+
+#buttons_scene_overide {
+  text-align: center;
+}
+
+.ui-input-text {
+    width : 200px;
+}​
