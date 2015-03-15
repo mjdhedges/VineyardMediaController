@@ -1,24 +1,10 @@
+Vineyard Media Controller
+
+Install and Run
+#npm install
+#npm start
+
+Currently set to create a webserver on;
+localhost:8888
 
 
-# serialweb
-
-
-
-## Usage
-
-
-
-## Developing
-
-
-
-### Tools
-
-Created with [Nodeclipse](https://github.com/Nodeclipse/nodeclipse-1)
- ([Eclipse Marketplace](http://marketplace.eclipse.org/content/nodeclipse), [site](http://www.nodeclipse.org))
-
-Nodeclipse is free open-source project that grows with your contributions.
-
-
-## NOTES
-Push count down from server
