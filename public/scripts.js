@@ -27,7 +27,12 @@ $(document).on('pageinit', function(){
 
 	//Recieve countdown from server and update GUI
 	socket.on('countdown', function(countdown){
-		$('#countdown').text(countdown);
+		$('#countdown').text(
+			countdown.days + " days " +
+			countdown.hours + " hours " +
+			countdown.minutes + " minutes " +
+			countdown.seconds + " seconds"
+		);
 	});
 
 	//Recieve Data updates from server and update GUI

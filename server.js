@@ -5,6 +5,8 @@ var http = require('http').Server(app);
 var io = require('socket.io')(http);
 var later = require('later');
 var osc = require('node-osc');
+var moment = require('moment');
+var math = require('mathjs');
 
 //Internal Modules
 var convert = require('./convert.js');
@@ -133,10 +135,45 @@ io.sockets.on('connection', function(socket){
   //Once connection is established send countdown timer
   //TEMP CODE
   setInterval(function(){
-      var now = new Date().toISOString().replace(/T/, ' ').replace(/\..+/, '');
-      var countdown = now;
-      //var Scene_one_schedule = later.schedule(Scene_one_occur);
-      //console.log(Scene_one_schedule.next(1));
+      var countdown = {
+        'days': 0,
+        'hours': 0,
+        'minutes': 0,
+        'seconds': 0,
+      };
+
+      //get the current time using moment
+      var now = moment();
+      //create a schedule from the occurances
+      var Scene_one_schedule = later.schedule(Scene_one_occur);
+      //find the next occurance of the schedule and convert to a moment
+      var then = moment(Scene_one_schedule.next(1));
+      //calculate the difference in milliseconds
+      var ms = then.diff(now, 'milliseconds', true);
+      //calculate the number of days to go
+      countdown.days = math.floor(moment.duration(ms).asDays());
+      //subtract from ms
+      then = then.subtract(countdown.days, 'days');
+      //update the duration of ms
+      ms = then.diff(now, 'milliseconds', true);
+      //calculate the number of hours to go
+      countdown.hours = math.floor(moment.duration(ms).asHours());
+      //subtract from ms
+      then = then.subtract(countdown.hours, 'hours');
+      //update the duration of ms
+      ms = then.diff(now, 'milliseconds', true);
+      //calculate the number of minutes to go
+      countdown.minutes = math.floor(moment.duration(ms).asMinutes());
+      //subtract from ms
+      then = then.subtract(countdown.minutes, 'minutes');
+      //update the duration of ms
+      ms = then.diff(now, 'milliseconds', true);
+      //calculate the number of seconds to go
+      countdown.seconds = math.floor(moment.duration(ms).asSeconds());
+      //send countdown object
+
+      console.log(countdown);
+
       socket.emit('countdown', countdown);
   }, 1000);
 
@@ -175,10 +212,10 @@ function Scene_update() {
   console.log(" Schedules Cleared");
 
   //Update Schedules
-  Scene_one_occur = later.parse.recur().every(0).dayOfWeek().on(data.scene_one.schedule.start).time();
-  Scene_two_occur = later.parse.recur().every(0).dayOfWeek().on(data.scene_two.schedule.start).time();
-  Scene_three_occur = later.parse.recur().every(0).dayOfWeek().on(data.scene_three.schedule.start).time();
-  Scene_four_occur = later.parse.recur().every(0).dayOfWeek().on(data.scene_four.schedule.start).time();
+  Scene_one_occur = later.parse.recur().on(1).dayOfWeek().on(data.scene_one.schedule.start).time();
+  Scene_two_occur = later.parse.recur().on(1).dayOfWeek().on(data.scene_two.schedule.start).time();
+  Scene_three_occur = later.parse.recur().on(1).dayOfWeek().on(data.scene_three.schedule.start).time();
+  Scene_four_occur = later.parse.recur().on(1).dayOfWeek().on(data.scene_four.schedule.start).time();
 
   console.log(" Schedules Updated");
 
