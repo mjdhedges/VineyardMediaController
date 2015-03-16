@@ -10,6 +10,7 @@ The main auditorium level is controlled by the main mix on the desk which is set
 
 ## Install and Run
 npm install
+
 npm start
 
 # Client
