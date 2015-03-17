@@ -28,6 +28,7 @@ $(document).on('pageinit', function(){
 	//Recieve countdown from server and update GUI
 	socket.on('countdown', function(countdown){
 		$('#countdown').text(
+			countdown.scene + ": " +
 			countdown.days + " days " +
 			countdown.hours + " hours " +
 			countdown.minutes + " minutes " +

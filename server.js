@@ -101,12 +101,17 @@ var oscclient = new osc.Client(x32config.ip, x32config.port);
 console.log("x32 Config: " + x32config.ip + ", " + x32config.port);
 
 //Scheduling using Later.js
-//Initialise schedules using saved data
+//Initialise Occurances using saved data
 var Scene_one_occur = later.parse.recur().on(1).dayOfWeek().on(data.scene_one.schedule.start).time();
 var Scene_two_occur = later.parse.recur().on(1).dayOfWeek().on(data.scene_two.schedule.start).time();
 var Scene_three_occur = later.parse.recur().on(1).dayOfWeek().on(data.scene_three.schedule.start).time();
 var Scene_four_occur = later.parse.recur().on(1).dayOfWeek().on(data.scene_four.schedule.start).time();
-//Start Schedules
+//Create Schedules for use by countdown timer
+var Scene_one_schedule = later.schedule(Scene_one_occur);
+var Scene_two_schedule = later.schedule(Scene_two_occur);
+var Scene_three_schedule = later.schedule(Scene_three_occur);
+var Scene_four_schedule = later.schedule(Scene_four_occur);
+//Start Occurances
 var Scene_one_tick = later.setInterval(Scene_one, Scene_one_occur);
 var Scene_two_tick = later.setInterval(Scene_two, Scene_two_occur);
 var Scene_three_tick = later.setInterval(Scene_three, Scene_three_occur);
@@ -140,14 +145,40 @@ io.sockets.on('connection', function(socket){
         'hours': 0,
         'minutes': 0,
         'seconds': 0,
+        'scene': "none",
       };
+      var then = 0;
 
       //get the current time using moment
       var now = moment();
-      //create a schedule from the occurances
-      var Scene_one_schedule = later.schedule(Scene_one_occur);
-      //find the next occurance of the schedule and convert to a moment
-      var then = moment(Scene_one_schedule.next(1));
+
+      //Generate moments for the next schedules
+      var Scene_one_schedule_next = moment(Scene_one_schedule.next(1));
+      var Scene_two_schedule_next = moment(Scene_two_schedule.next(1));
+      var Scene_three_schedule_next = moment(Scene_three_schedule.next(1));
+      var Scene_four_schedule_next = moment(Scene_four_schedule.next(1));
+
+      //ms till event
+      var Scene_one_schedule_next_ms = Scene_one_schedule_next.diff(now, 'milliseconds', true);
+      var Scene_two_schedule_next_ms = Scene_two_schedule_next.diff(now, 'milliseconds', true);
+      var Scene_three_schedule_next_ms = Scene_three_schedule_next.diff(now, 'milliseconds', true);
+      var Scene_four_schedule_next_ms = Scene_four_schedule_next.diff(now, 'milliseconds', true);
+
+      //if x is less than y or x is less than z or x is less than f
+      if(Scene_one_schedule_next_ms < Scene_two_schedule_next_ms){
+        then = Scene_one_schedule_next;
+        countdown.scene = "Scene One";
+      } else if (Scene_two_schedule_next_ms < Scene_three_schedule_next_ms){
+        then = Scene_two_schedule_next;
+        countdown.scene = "Scene Two";
+      } else if (Scene_three_schedule_next_ms < Scene_four_schedule_next_ms){
+        then = Scene_three_schedule_next;
+        countdown.scene = "Scene three";
+      } else {
+        then = Scene_four_schedule_next;
+        countdown.scene = "Scene four";
+      }
+
       //calculate the difference in milliseconds
       var ms = then.diff(now, 'milliseconds', true);
       //calculate the number of days to go
@@ -211,11 +242,17 @@ function Scene_update() {
 
   console.log(" Schedules Cleared");
 
+  //Update Occurances
+  Scene_one_occur = later.parse.recur().on(2).dayOfWeek().on(data.scene_one.schedule.start).time();
+  Scene_two_occur = later.parse.recur().on(2).dayOfWeek().on(data.scene_two.schedule.start).time();
+  Scene_three_occur = later.parse.recur().on(2).dayOfWeek().on(data.scene_three.schedule.start).time();
+  Scene_four_occur = later.parse.recur().on(2).dayOfWeek().on(data.scene_four.schedule.start).time();
+
   //Update Schedules
-  Scene_one_occur = later.parse.recur().on(1).dayOfWeek().on(data.scene_one.schedule.start).time();
-  Scene_two_occur = later.parse.recur().on(1).dayOfWeek().on(data.scene_two.schedule.start).time();
-  Scene_three_occur = later.parse.recur().on(1).dayOfWeek().on(data.scene_three.schedule.start).time();
-  Scene_four_occur = later.parse.recur().on(1).dayOfWeek().on(data.scene_four.schedule.start).time();
+  Scene_one_schedule = later.schedule(Scene_one_occur);
+  Scene_two_schedule = later.schedule(Scene_two_occur);
+  Scene_three_schedule = later.schedule(Scene_three_occur);
+  Scene_four_schedule = later.schedule(Scene_four_occur);
 
   console.log(" Schedules Updated");
 
@@ -226,6 +263,7 @@ function Scene_update() {
   Scene_four_tick = later.setInterval(Scene_four, Scene_four_occur);
 
   console.log(" Schedules Started");
+
 }
 
 //Run Scenes when schedule fires
