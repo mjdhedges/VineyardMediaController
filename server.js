@@ -32,7 +32,7 @@ var data = {
 	},
 	"scene_two": {
     "schedule": {
-			"start": "10:22:00",
+			"start": "10:21:00",
 		},
 		"x32":{
 			"DCA6": 0,
@@ -141,11 +141,11 @@ io.sockets.on('connection', function(socket){
   //TEMP CODE
   setInterval(function(){
       var countdown = {
+        'scene': "none",
         'days': 0,
         'hours': 0,
         'minutes': 0,
         'seconds': 0,
-        'scene': "none",
       };
       var then = 0;
 
@@ -164,11 +164,17 @@ io.sockets.on('connection', function(socket){
       var Scene_three_schedule_next_ms = Scene_three_schedule_next.diff(now, 'milliseconds', true);
       var Scene_four_schedule_next_ms = Scene_four_schedule_next.diff(now, 'milliseconds', true);
 
+      console.log(Scene_one_schedule_next_ms + ", " +
+                  Scene_two_schedule_next_ms + ", " +
+                  Scene_three_schedule_next_ms + ", " +
+                  Scene_four_schedule_next_ms + ", "
+      );
+
       //if x is less than y or x is less than z or x is less than f
-      if(Scene_one_schedule_next_ms < Scene_two_schedule_next_ms){
+      if(Scene_one_schedule_next_ms < Scene_two_schedule_next_ms && Scene_one_schedule_next_ms < Scene_three_schedule_next_ms && Scene_one_schedule_next_ms < Scene_four_schedule_next_ms){
         then = Scene_one_schedule_next;
         countdown.scene = "Scene One";
-      } else if (Scene_two_schedule_next_ms < Scene_three_schedule_next_ms){
+      } else if (Scene_two_schedule_next_ms < Scene_three_schedule_next_ms && Scene_two_schedule_next_ms < Scene_four_schedule_next_ms){
         then = Scene_two_schedule_next;
         countdown.scene = "Scene Two";
       } else if (Scene_three_schedule_next_ms < Scene_four_schedule_next_ms){
@@ -243,10 +249,10 @@ function Scene_update() {
   console.log(" Schedules Cleared");
 
   //Update Occurances
-  Scene_one_occur = later.parse.recur().on(2).dayOfWeek().on(data.scene_one.schedule.start).time();
-  Scene_two_occur = later.parse.recur().on(2).dayOfWeek().on(data.scene_two.schedule.start).time();
-  Scene_three_occur = later.parse.recur().on(2).dayOfWeek().on(data.scene_three.schedule.start).time();
-  Scene_four_occur = later.parse.recur().on(2).dayOfWeek().on(data.scene_four.schedule.start).time();
+  Scene_one_occur = later.parse.recur().on(1).dayOfWeek().on(data.scene_one.schedule.start).time();
+  Scene_two_occur = later.parse.recur().on(1).dayOfWeek().on(data.scene_two.schedule.start).time();
+  Scene_three_occur = later.parse.recur().on(1).dayOfWeek().on(data.scene_three.schedule.start).time();
+  Scene_four_occur = later.parse.recur().on(1).dayOfWeek().on(data.scene_four.schedule.start).time();
 
   //Update Schedules
   Scene_one_schedule = later.schedule(Scene_one_occur);
