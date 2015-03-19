@@ -9,11 +9,40 @@ Behringer X32 desk with
 The main auditorium level is controlled by the main mix on the desk which is set to -5dB and therefore the overall levels in the auditorium and the cafe area can be pre-set and automated using this application.
 
 ## Install and Run
+Go to the directory and run
+```
 npm install
-
 npm start
+```
 
-# Client
+## Client
 Currently set to create a webserver on;
 * localhost:8888
 * Currently theres a bug with Socket.io which prevents a proper connection from being made when the webpage is loaded from the home page. Currently move to the Settings page and refresh.
+
+## Service
+To run the application as a monitored service use pm2
+```
+sudo npm install pm2 -g
+```
+generate startup script
+```
+pm2 startup
+```
+copy the grey line to the shell
+```
+sudo env PATH=$PATH:/usr/local/bin pm2 startup linux -u "username"
+```
+pm2 will now reload any running programs after it boots. To load a program using pm2
+```
+cd /path
+pm2 start server.js
+```
+To show current running program and log files
+```
+pm2 list
+pm2 logs
+```
+For more information see;
+
+https://www.npmjs.com/package/pm2
