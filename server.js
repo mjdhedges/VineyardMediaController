@@ -132,14 +132,14 @@ io.sockets.on('connection', function(socket){
 
 	//Clock used to check data comms (can be disabled)
   //Once connection is established send date to client at interval
-  setInterval(function(){
+  var interval_date = setInterval(function(){
 			var now = new Date().toISOString().replace(/T/, ' ').replace(/\..+/, '');
       socket.emit('date', now);
   }, 1000);
 
   //Once connection is established send countdown timer
   //TEMP CODE
-  setInterval(function(){
+  var interval_countdown = setInterval(function(){
       var countdown = {
         'scene': "none",
         'days': 0,
@@ -164,11 +164,11 @@ io.sockets.on('connection', function(socket){
       var Scene_three_schedule_next_ms = Scene_three_schedule_next.diff(now, 'milliseconds', true);
       var Scene_four_schedule_next_ms = Scene_four_schedule_next.diff(now, 'milliseconds', true);
 
-      console.log(Scene_one_schedule_next_ms + ", " +
-                  Scene_two_schedule_next_ms + ", " +
-                  Scene_three_schedule_next_ms + ", " +
-                  Scene_four_schedule_next_ms + ", "
-      );
+      // console.log(Scene_one_schedule_next_ms + ", " +
+      //             Scene_two_schedule_next_ms + ", " +
+      //             Scene_three_schedule_next_ms + ", " +
+      //             Scene_four_schedule_next_ms + ", "
+      // );
 
       //if x is less than y or x is less than z or x is less than f
       if(Scene_one_schedule_next_ms < Scene_two_schedule_next_ms && Scene_one_schedule_next_ms < Scene_three_schedule_next_ms && Scene_one_schedule_next_ms < Scene_four_schedule_next_ms){
@@ -209,7 +209,7 @@ io.sockets.on('connection', function(socket){
       countdown.seconds = math.floor(moment.duration(ms).asSeconds());
       //send countdown object
 
-      console.log(countdown);
+      //console.log(countdown);
 
       socket.emit('countdown', countdown);
   }, 1000);
@@ -231,6 +231,9 @@ io.sockets.on('connection', function(socket){
 
   //On Disconnection
   socket.on('disconnect', function(){
+    //Stop intervals
+    clearInterval(interval_date);
+    clearInterval(interval_countdown);
 		//logs user disconnection
 	  console.log('user ' + usernum + ' disconnected');
   });
