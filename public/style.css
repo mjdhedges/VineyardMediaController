@@ -5,13 +5,28 @@
    position: relative !important;
 }
 
-#date {
-  color: black;
-  text-align: center;
+.ui-input-text {
+    width : 200px;
+}​
+
+.ui-content
+{
+    margin-bottom:75px; /* Set this to whatever your footer size is... */
+}
+
+.ui-footer {
+    position: absolute !important;
+    bottom: 0;
+    width: 100%;
 }
 
 .ui-slider-input {
     width: 100px;
+}
+
+#date {
+  color: black;
+  text-align: center;
 }
 
 #countdown {
@@ -26,7 +41,3 @@
 #buttons_scene_overide {
   text-align: center;
 }
-
-.ui-input-text {
-    width : 200px;
-}​
