@@ -8,13 +8,23 @@ var overrides = {};
 //run whenever the settings page needs to be updated
 //Updates GUI
 function page_settings_update() {
-	var scene = $("#scene option:selected").val();
-	$("#Scene_start").val(data[scene].schedule.start);
-	$("#slider_DCA6").val(data[scene].x32.DCA6).slider('refresh');
-	$("#slider_DCA7").val(data[scene].x32.DCA7).slider('refresh');
-	$("#slider_MIX12").val(data[scene].x32.MIX12).slider('refresh');
-	$('#file').val(data[scene].file).selectmenu('refresh');
+	//Code aborts if refresh is called when html does not exist (home page)
+	if($.mobile.activePage.attr("id") == "page_settings"){
+		var scene = $("#scene option:selected").val();
+		$("#Scene_start").val(data[scene].schedule.start);
+		$("#slider_DCA6").val(data[scene].x32.DCA6).slider('refresh');
+		$("#slider_DCA7").val(data[scene].x32.DCA7).slider('refresh');
+		$("#slider_MIX12").val(data[scene].x32.MIX12).slider('refresh');
+		$('#file').val(data[scene].file).selectmenu('refresh');
+	}
 }
+
+//refreshes the sliders on pages changes if they are shown
+//may not be the most eligant solution, there is a small delay as the
+//previous position is shown for half a second before it is updated
+$(document).on('pageshow', function(){
+	page_settings_update();
+});
 
 //Initialise scripts on page initiasation not on 'ready' as with JQuery
 $(document).on('pageinit', function(){
