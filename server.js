@@ -226,7 +226,7 @@ io.sockets.on('connection', function(socket){
   socket.on('override', function(recieved_overrides){
     overrides = recieved_overrides;
     socket.broadcast.emit('override', overrides);
-    console.log(overrides);
+    console.log("Overrides Recieved");
   });
 
   //On Disconnection
