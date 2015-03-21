@@ -1,4 +1,4 @@
-//External Modules
+//EXTERNAL MODULES
 var express = require('express');
 var app = express();
 var http = require('http').Server(app);
@@ -7,79 +7,83 @@ var later = require('later');
 var osc = require('node-osc');
 var moment = require('moment');
 var math = require('mathjs');
+var Datastore = require('nedb');
 
-//Internal Modules
+//INETERNAL MODULES
 var convert = require('./convert.js');
 
 //Varibles
-var usernum = 0;
+var usernum = 0;    //Assignes a number of each user as they connect
+
+//DATABASE
+var db = new Datastore({ filename: './database/VMC.db', autoload: true });
 
 //JSON Varibles
 //defined scenes, for each sense define settings
 //this will not save data if the server is restarted!!!
 //MUST BE CONVERTED TO DATABASE!!
 var data = {
-  "scene_one": {
-		"schedule": {
-			"start": "10:20:00",
+  scene_one: {
+		schedule: {
+			start: "10:20:00",
 		},
-		"x32":{
-			"DCA6": 512,
-			"DCA7": 0,
-			"MIX12": 512,
+		x32:{
+			DCA6: 512,
+			DCA7: 0,
+			MIX12: 512,
 		},
-		"file": "Audio_1",
+		file: "Audio_1",
 	},
-	"scene_two": {
-    "schedule": {
-			"start": "10:21:00",
+	scene_two: {
+    schedule: {
+			start: "10:21:00",
 		},
-		"x32":{
-			"DCA6": 0,
-			"DCA7": 512,
-			"MIX12": 124,
+		x32:{
+			DCA6: 0,
+			DCA7: 512,
+			MIX12: 124,
 		},
-		"file": "None",
+		file: "None",
 	},
-	"scene_three": {
-    "schedule": {
-			"start": "10:28:00",
+	scene_three: {
+    schedule: {
+			start: "10:28:00",
 		},
-		"x32":{
-			"DCA6": 512,
-			"DCA7": 0,
-			"MIX12": 512,
+		x32:{
+			DCA6: 512,
+			DCA7: 0,
+			MIX12: 512,
 		},
-		"file": "Video_1",
+		file: "Video_1",
 	},
-	"scene_four": {
-    "schedule": {
-			"start": "10:30:00",
+	scene_four: {
+    schedule: {
+			start: "10:30:00",
 		},
-		"x32":{
-			"DCA6": 0,
-			"DCA7": 0,
-			"MIX12": 124,
+		x32:{
+			DCA6: 0,
+			DCA7: 0,
+			MIX12: 124,
 		},
-		"file": "None",
+		file: "None",
 	},
-  "x32address": {
-    "DCA6": "/dca/6/fader",
-    "DCA7": "/dca/7/fader",
-    "MIX12": "/bus/12/mix/fader",
+  x32address: {
+    DCA6: "/dca/6/fader",
+    DCA7: "/dca/7/fader",
+    MIX12: "/bus/12/mix/fader",
   }
 };
 
 var overrides = {
-  "x32": {
-    "MIX12": 0,
+  x32: {
+    MIX12: 0,
   },
-  "scene": "scene_one",
+  scene: "scene_one",
 };
 
 var x32config = {
-  "ip": "192.168.0.12",
-  "port": 10023,
+  ip: "192.168.0.12",
+  port: 10023,
 };
 
 //WEBSERVER SETUP
@@ -100,7 +104,7 @@ http.listen(8888, function(){
 var oscclient = new osc.Client(x32config.ip, x32config.port);
 console.log("x32 Config: " + x32config.ip + ", " + x32config.port);
 
-//Scheduling using Later.js
+//SCHEDULING Later.js
 //Initialise Occurances using saved data
 var Scene_one_occur = later.parse.recur().on(1).dayOfWeek().on(data.scene_one.schedule.start).time();
 var Scene_two_occur = later.parse.recur().on(1).dayOfWeek().on(data.scene_two.schedule.start).time();
