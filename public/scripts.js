@@ -66,8 +66,27 @@ $(document).on('pageinit', function(){
 	//Each option on the page is monitored
 	$("#Scene_start").change(function() {
 		var scene = $("#scene option:selected").val();
-		data[scene].schedule.start = $(this).val();
-		socket.emit("data", data);
+		var time = $(this).val();
+		//Error Handling: Check if time is in the right format
+		// + still works as it creates a valid number
+		if (
+			time.length <= 8 &&
+			time.charAt(2) === ":" &&
+			time.charAt(5) === ":" &&
+			time.slice(0,2).valueOf() <= 23 &&
+			time.slice(0,2).valueOf() >= 0 &&
+			time.slice(3,5).valueOf() <= 59 &&
+			time.slice(3,5).valueOf() >= 0 &&
+			time.slice(6,8).valueOf() <= 59 &&
+			time.slice(6,8).valueOf() >= 0
+		) {
+			data[scene].schedule.start = time;
+			socket.emit("data", data);
+		} else {
+			alert("Incorrect Format: Star Time should be in HH:MM:SS");
+			//Reset Time to current database value
+			$("#Scene_start").val(data[scene].schedule.start);
+		}
 	});
 	$("#slider_DCA6").on('slidestop', function( event ) {
 		var scene = $("#scene option:selected").val();
