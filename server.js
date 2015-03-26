@@ -15,13 +15,9 @@ var convert = require('./convert.js');
 //Varibles
 var usernum = 0;    //Assignes a number of each user as they connect
 
-//DATABASE
-var db = new Datastore({ filename: './database/VMC.db', autoload: true });
-
 //JSON Varibles
 //defined scenes, for each sense define settings
-//this will not save data if the server is restarted!!!
-//MUST BE CONVERTED TO DATABASE!!
+//These are only used if there is no database
 var data = {
   scene_one: {
 		schedule: {
@@ -85,6 +81,28 @@ var x32config = {
   ip: "192.168.0.12",
   port: 10023,
 };
+
+//DATABASE
+var db = new Datastore({ filename: './database/VMC.db', autoload: true });
+//initialise database if this is the first run
+db.insert(data, function(err, newDoc){
+  if(err) {
+    console.log('Database: Error document data_default not written');
+  } else {
+    console.log('Database: data_default inserted');
+  }
+});
+
+db.find({"scene_one.x32": 'DCA6'}, function(err,docs){
+  console.log(docs);
+});
+
+db.persistence.compactDatafile();
+
+//test database
+//db.find({scene_one}, function (err,docs){
+
+//});
 
 //WEBSERVER SETUP
 //serves files in the public folder
