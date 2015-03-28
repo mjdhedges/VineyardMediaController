@@ -82,24 +82,6 @@ var x32config = {
   "port": 10023,
 };
 
-//WEBSERVER SETUP
-//serves files in the public folder
-app.use(express.static(__dirname + '/public'));
-//called when the web server is requested
-app.get('/', function(req, res){
-	//serves index.html in response
-	res.sendFile(__dirname + '/public/index.html');
-	console.log('index.html requested');
-});
-//starts web server on port 8888
-http.listen(8888, function(){
-	console.log('webserver listening on *:8888');
-});
-
-//x32 SETUP
-var oscclient = new osc.Client(x32config.ip, x32config.port);
-console.log("x32 Config: " + x32config.ip + ", " + x32config.port);
-
 //Scheduling using Later.js
 //Initialise Occurances using saved data
 var Scene_one_occur = later.parse.recur().on(1).dayOfWeek().on(data.scene_one.schedule.start).time();
@@ -116,6 +98,33 @@ var Scene_one_tick = later.setInterval(Scene_one, Scene_one_occur);
 var Scene_two_tick = later.setInterval(Scene_two, Scene_two_occur);
 var Scene_three_tick = later.setInterval(Scene_three, Scene_three_occur);
 var Scene_four_tick = later.setInterval(Scene_four, Scene_four_occur);
+
+//OSC SETUP for Communication with X32
+//Client
+var oscclient = new osc.Client(x32config.ip, x32config.port);
+console.log("OSC Client sending to " + x32config.ip + ":" + x32config.port);
+//Server
+var oscserver = new osc.Server(x32config.port, '0.0.0.0');
+console.log("OSC Server Listening on " + "0.0.0.0:" + x32config.port);
+//Start Listening for x32 messages
+oscserver.on("message", function (msg, rinfo) {
+      console.log("TUIO message:");
+      console.log(msg);
+});
+
+//WEBSERVER SETUP
+//serves files in the public folder
+app.use(express.static(__dirname + '/public'));
+//called when the web server is requested
+app.get('/', function(req, res){
+	//serves index.html in response
+	res.sendFile(__dirname + '/public/index.html');
+	console.log('index.html requested');
+});
+//starts web server on port 8888
+http.listen(8888, function(){
+	console.log('webserver listening on *:8888');
+});
 
 //BROWSER IO
 //define interaction with clients
