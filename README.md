@@ -1,5 +1,5 @@
 # Vineyard Media Controller
-Server/Client application used to automate announcements and video countdown timer. In our case this is used to automate the lead up to the start of our church service reducing load on the AV team. Specifically setup to play out an announcment at 10:20 followed by a video countdown at 10:28 leading to the start of the service at 10:30. 
+Server/Client application used to automate announcements and video countdown timer. In our case this is used to automate the lead up to the start of our church service reducing load on the AV team. Specifically setup to play out an announcment at 10:20 followed by a video countdown at 10:28 leading to the start of the service at 10:30.
 
 Our setup is;
 Behringer X32 desk with
@@ -46,3 +46,9 @@ pm2 logs
 For more information see;
 
 https://www.npmjs.com/package/pm2
+
+##Behringer X32 OSC commands
+http://www.behringer.com/assets/X32_OSC_Remote_Protocol.pdf
+http://x32wiki.music-group.com/index.php?title=OSC_Remote_Protocol
+http://www.academia.edu/9709659/UNOFFICIAL_X32_OSC_REMOTE_PROTOCOL
+https://sites.google.com/site/patrickmaillot/x32
