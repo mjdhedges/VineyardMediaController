@@ -357,6 +357,9 @@ function Scene_four(){
 //Send OSC data called when scenes run
 function x32send(addresses, values) {
 
+  //set x32 to return changes has to be issues every 10s
+  oscclient.send("/xremote");
+
   oscclient.send(addresses.DCA6, values.DCA6);
   console.log(" x32 Send: " + addresses.DCA6 + ", " + values.DCA6);
 
