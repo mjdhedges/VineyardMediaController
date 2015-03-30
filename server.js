@@ -111,6 +111,10 @@ oscserver.on("message", function (msg, rinfo) {
       console.log("TUIO message:");
       console.log(msg);
 });
+//Set X32 to return changes, times out after 10s
+setInterval(function(){
+  oscclient.send("/xremote");
+}, 5000);
 
 //WEBSERVER SETUP
 //serves files in the public folder
@@ -370,9 +374,6 @@ function Scene_four(){
 
 //Send OSC data called when scenes run
 function x32send(addresses, values) {
-
-  //set x32 to return changes has to be issues every 10s
-  oscclient.send("/xremote");
 
   oscclient.send(addresses.DCA6, values.DCA6);
   console.log(" x32 Send: " + addresses.DCA6 + ", " + values.DCA6);
