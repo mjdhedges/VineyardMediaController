@@ -28,6 +28,15 @@ $(document).on('pageshow', function(){
 
 //Initialise scripts on page initiasation not on 'ready' as with JQuery
 $(document).on('pageinit', function(){
+	//Connection
+	socket.on('connect', function() {
+		$(':mobile-pagecontainer').pagecontainer('change', '#page_home', {
+      //transition: 'flip',
+      //changeHash: false,
+      //reverse: true,
+      //showLoadMsg: true
+    });
+	});
 
 	//Recieve date from server and update GUI
 	socket.on('date', function(date){
@@ -56,6 +65,16 @@ $(document).on('pageinit', function(){
 	socket.on('override', function(recieved_data){
 		overrides = recieved_data;
 		$("#slider_MIX12_override").val(overrides.x32.MIX12).slider('refresh');
+	});
+
+	//Disconnect
+	socket.on('disconnect', function() {
+		$(':mobile-pagecontainer').pagecontainer('change', '#page_connectionlost', {
+			//transition: 'flip',
+			//changeHash: false,
+			//reverse: true,
+			//showLoadMsg: true
+		});
 	});
 
 	//Monitor changes to update GUI

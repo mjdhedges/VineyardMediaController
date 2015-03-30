@@ -38,6 +38,14 @@
   font-weight: bold;
 }
 
+#connectionlost {
+  text-align: center;
+  color: red;
+  padding: 20px;
+  font-size: 30px;
+  font-weight: bold;
+}
+
 #buttons_scene_overide {
   text-align: center;
 }
