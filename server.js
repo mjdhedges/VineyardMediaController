@@ -234,8 +234,22 @@ io.sockets.on('connection', function(socket){
   //Waits for override
   socket.on('override', function(recieved_overrides){
     overrides = recieved_overrides;
-    socket.broadcast.emit('override', overrides);
+    //socket.broadcast.emit('override', overrides);
     console.log("Overrides Recieved");
+    console.log(overrides);
+
+    if (overrides.scene === "scene_one") {
+      Scene_one();
+    } else if (overrides.scene === "scene_two") {
+      Scene_two();
+    } else if (overrides.scene === "scene_three") {
+      Scene_three();
+    } else if (overrides.scene === "scene_four") {
+      Scene_four();
+    } else {
+      console.log("Error: Override failed");
+    }
+
   });
 
   //On Disconnection

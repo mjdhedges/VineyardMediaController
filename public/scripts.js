@@ -96,4 +96,22 @@ $(document).on('pageinit', function(){
 		socket.emit("override", overrides);
 	});
 
+	//Override Buttons
+	$("#button_scene_one").on( "click", function() {
+		overrides.scene = "scene_one";
+		socket.emit("override", overrides);
+	});
+	$("#button_scene_two").on( "click", function() {
+		overrides.scene = "scene_two";
+		socket.emit("override", overrides);
+	});
+	$("#button_scene_three").on( "click", function() {
+		overrides.scene = "scene_three";
+		socket.emit("override", overrides);
+	});
+	$("#button_scene_four").on( "click", function() {
+		overrides.scene = "scene_four";
+		socket.emit("override", overrides);
+	});
+
 });
