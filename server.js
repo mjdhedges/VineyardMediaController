@@ -4,9 +4,9 @@ var app = express();
 var http = require('http').Server(app);
 var io = require('socket.io')(http);
 var later = require('later');
-var osc = require('node-osc');
 var moment = require('moment');
 var math = require('mathjs');
+var osc = require('osc');
 
 //Internal Modules
 var convert = require('./convert.js');
@@ -78,7 +78,7 @@ var overrides = {
 };
 
 var x32config = {
-  "ip": "192.168.0.12",
+  "ip": "10.0.68.189",
   "port": 10023,
 };
 
@@ -99,12 +99,32 @@ var Scene_two_tick = later.setInterval(Scene_two, Scene_two_occur);
 var Scene_three_tick = later.setInterval(Scene_three, Scene_three_occur);
 var Scene_four_tick = later.setInterval(Scene_four, Scene_four_occur);
 
+//OSC Setup
+//Create an osc.js UDP Port listening on port 10023
+var oscudp = new osc.UDPPort({
+  localAddress: "0.0.0.0",
+  localPort: 10023
+});
+//Listen for incoming OSC bundles
+oscudp.on("bundle", function(oscBundle) {
+  console.log("An OSC bundle just arrived!", oscBundle);
+});
+//Open the socket
+oscudp.open();
+//Send an OSC message to, say, SuperCollider
+oscudp.send({
+  address: "/x/x/x",
+  args: ["default", 100]
+}, x32config.ip, x32config.port);
+
+
+
 //OSC SETUP for Communication with X32
 //Client
 var oscclient = new osc.Client(x32config.ip, x32config.port);
 console.log("OSC Client sending to " + x32config.ip + ":" + x32config.port);
 //Server
-var oscserver = new osc.Server(x32config.port, '0.0.0.0');
+var oscserver = new oscS.Server(x32config.port, '0.0.0.0');
 console.log("OSC Server Listening on " + "0.0.0.0:" + x32config.port);
 //Start Listening for x32 messages
 oscserver.on("message", function (msg, rinfo) {
@@ -113,7 +133,7 @@ oscserver.on("message", function (msg, rinfo) {
 });
 //Set X32 to return changes, times out after 10s
 setInterval(function(){
-  oscclient.send("/xremote");
+  oscclient.send("/info");
 }, 5000);
 
 //WEBSERVER SETUP
