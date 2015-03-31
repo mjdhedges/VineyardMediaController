@@ -82,6 +82,12 @@ var x32config = {
   "port": 10023,
 };
 
+var current = {
+  "DCA6": 0,
+  "DCA7": 0,
+  "MIX12": 0,
+};
+
 //Scheduling using Later.js
 //Initialise Occurances using saved data
 var Scene_one_occur = later.parse.recur().on(1).dayOfWeek().on(data.scene_one.schedule.start).time();
@@ -99,41 +105,25 @@ var Scene_two_tick = later.setInterval(Scene_two, Scene_two_occur);
 var Scene_three_tick = later.setInterval(Scene_three, Scene_three_occur);
 var Scene_four_tick = later.setInterval(Scene_four, Scene_four_occur);
 
-//OSC Setup
+//OSC SETUP
 //Create an osc.js UDP Port listening on port 10023
-var oscudp = new osc.UDPPort({
+var osc = new osc.UDPPort({
   localAddress: "0.0.0.0",
   localPort: 10023
 });
+console.log("OSC Client sending to " + x32config.ip + ":" + x32config.port);
 //Listen for incoming OSC bundles
-oscudp.on("bundle", function(oscBundle) {
+osc.on("bundle", function(oscBundle) {
   console.log("An OSC bundle just arrived!", oscBundle);
 });
 //Open the socket
-oscudp.open();
-//Send an OSC message to, say, SuperCollider
-oscudp.send({
-  address: "/x/x/x",
-  args: ["default", 100]
-}, x32config.ip, x32config.port);
-
-
-
-//OSC SETUP for Communication with X32
-//Client
-var oscclient = new osc.Client(x32config.ip, x32config.port);
-console.log("OSC Client sending to " + x32config.ip + ":" + x32config.port);
-//Server
-var oscserver = new oscS.Server(x32config.port, '0.0.0.0');
+osc.open();
 console.log("OSC Server Listening on " + "0.0.0.0:" + x32config.port);
-//Start Listening for x32 messages
-oscserver.on("message", function (msg, rinfo) {
-      console.log("TUIO message:");
-      console.log(msg);
-});
 //Set X32 to return changes, times out after 10s
 setInterval(function(){
-  oscclient.send("/info");
+  osc.send({
+    address: "/info"
+  }, x32config.ip, x32config.port);
 }, 5000);
 
 //WEBSERVER SETUP
@@ -260,7 +250,6 @@ io.sockets.on('connection', function(socket){
     overrides = recieved_overrides;
     //socket.broadcast.emit('override', overrides);
     console.log("Overrides Recieved");
-    console.log(overrides);
 
     if (overrides.scene === "scene_one") {
       Scene_one();
@@ -335,8 +324,13 @@ function Scene_one(){
   converted.DCA7 = data.scene_one.x32.DCA7 * (1/1024);
   converted.MIX12 = data.scene_one.x32.MIX12 * (1/1024);
 
-  //Sends data in JSON with corresponding addresses
+  //Send fader positions to X32
   x32send(data.x32address, converted);
+
+  //update current fader settings
+  current.DCA6 = data.scene_one.x32.DCA6;
+  current.DCA7 = data.scene_one.x32.DCA7;
+  current.MIX12 = data.scene_one.x32.MIX12;
 
   //ADD AUDIO & VIDEO PLAYBACK HERE
 }
@@ -353,7 +347,13 @@ function Scene_two(){
   converted.DCA7 = data.scene_two.x32.DCA7 * (1/1024);
   converted.MIX12 = data.scene_two.x32.MIX12 * (1/1024);
 
+  //Send fader positions to X32
   x32send(data.x32address, converted);
+
+  //update current fader settings
+  current.DCA6 = data.scene_two.x32.DCA6;
+  current.DCA7 = data.scene_two.x32.DCA7;
+  current.MIX12 = data.scene_two.x32.MIX12;
 
   //ADD AUDIO & VIDEO PLAYBACK HERE
 }
@@ -370,7 +370,13 @@ function Scene_three(){
   converted.DCA7 = data.scene_three.x32.DCA7 * (1/1024);
   converted.MIX12 = data.scene_three.x32.MIX12 * (1/1024);
 
+  //Send fader positions to X32
   x32send(data.x32address, converted);
+
+  //update current fader settings
+  current.DCA6 = data.scene_three.x32.DCA6;
+  current.DCA7 = data.scene_three.x32.DCA7;
+  current.MIX12 = data.scene_three.x32.MIX12;
 
   //ADD AUDIO & VIDEO PLAYBACK HERE
 }
@@ -387,6 +393,7 @@ function Scene_four(){
   converted.DCA7 = data.scene_four.x32.DCA7 * (1/1024);
   converted.MIX12 = data.scene_four.x32.MIX12 * (1/1024);
 
+  //Send fader positions to X32
   x32send(data.x32address, converted);
 
   //ADD AUDIO & VIDEO PLAYBACK HERE
@@ -395,12 +402,52 @@ function Scene_four(){
 //Send OSC data called when scenes run
 function x32send(addresses, values) {
 
-  oscclient.send(addresses.DCA6, values.DCA6);
-  console.log(" x32 Send: " + addresses.DCA6 + ", " + values.DCA6);
+  //fade faders over a 2sec
+  var time = 2000;            //ms
+  var rate = 50;              //number of sends per second
+  var delay = 1000/rate;      //time between sends ms
+  var num = (rate/1000)*time; //total number of steps
+  var n = 0;                  //counter
+  var inc = {                 //increments
+    DCA6: 0,
+    DCA7: 0,
+    MIX12: 0,
+  };
 
-  oscclient.send(addresses.DCA7, values.DCA7);
-  console.log(" x32 Send: " + addresses.DCA7 + ", " + values.DCA7);
+  //calculate the increment to move the fader
+  inc.DCA6 = (current.DCA6-values.DCA6)/num;
+  inc.DCA7 = (current.DCA7-values.DCA7)/num;
+  inc.MIX12 = (current.MIX12-values.MIX12)/num;
 
-  oscclient.send(addresses.MIX12, values.MIX12);
-  console.log(" x32 Send: " + addresses.MIX12 + ", " + values.MIX12);
+  var send = setInterval(function(){
+    var fader = current.DCA6-(n *inc.DCA6);
+    osc.send({
+      address: fader,
+      args: values.DCA6
+    }, x32config.ip, x32config.port);
+    console.log(" x32 Send: " + addresses.DCA6 + ", " + values.DCA6);
+
+    osc.send({
+      address: addresses.DCA7,
+      args: values.DCA7
+    }, x32config.ip, x32config.port);
+    console.log(" x32 Send: " + addresses.DCA7 + ", " + values.DCA7);
+
+    osc.send({
+      address: addresses.MIX12,
+      args: values.MIX12
+    }, x32config.ip, x32config.port);
+    console.log(" x32 Send: " + addresses.MIX12 + ", " + values.MIX12);
+
+    console.log(n);
+    n = n++;    //Increment counter
+    if (n === num){
+      clearInterval(send);
+    }
+  }, delay);
+
+
+  current.DCA6 = values.DCA6;
+  current.DCA7 = values.DCA7;
+  current.MIX12 = values.MIX12;
 }
