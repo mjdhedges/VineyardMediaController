@@ -79,15 +79,15 @@ var overrides = {
 };
 
 var x32config = {
-  "ip": "10.0.68.192",
+  "ip": "192.168.0.12",
   "port": 10023,
 };
 
 //on boot need to ask the x32 for these values
 var current = {
-  "DCA6": 1,
-  "DCA7": 1,
-  "MIX12": 1,
+  "DCA6": 0.5,
+  "DCA7": 0,
+  "MIX12": 0.5,
 };
 
 //Scheduling using Later.js
@@ -114,10 +114,7 @@ var osc = new osc.UDPPort({
   localPort: 10023
 });
 console.log("OSC Client sending to " + x32config.ip + ":" + x32config.port);
-//Listen for incoming OSC bundles
-osc.on("bundle", function(oscBundle) {
-  console.log("An OSC bundle just arrived!", oscBundle);
-});
+
 //Open the socket
 osc.open();
 console.log("OSC Server Listening on " + "0.0.0.0:" + x32config.port);
@@ -127,6 +124,11 @@ setInterval(function(){
     address: "/info"
   }, x32config.ip, x32config.port);
 }, 5000);
+
+//Listen for incoming OSC bundles
+osc.on("bundle", function(oscBundle) {
+  console.log("An OSC bundle just arrived!", oscBundle);
+});
 
 //WEBSERVER SETUP
 //serves files in the public folder
@@ -390,7 +392,7 @@ function Scene_four(){
 function x32send(address, values) {
   //fade faders over a 2sec
   var time = 2000;            //ms
-  var rate = 50;              //number of sends per second
+  var rate = 20;              //number of sends per second
   var delay = 1000/rate;      //time between sends ms
   var num = (rate/1000)*time; //total number of steps
   var n = 0;                  //counter
@@ -400,9 +402,9 @@ function x32send(address, values) {
     MIX12: 0,
   };
 
-  console.log("Fading DCA6 from " + current.DCA6 + " to " + values.DCA6);
-  console.log("Fading DCA7 from " + current.DCA7 + " to " + values.DCA7);
-  console.log("Fading MIX12 from " + current.MIX12 + " to " + values.MIX12);
+  console.log(" Fading DCA6 from " + current.DCA6 + " to " + values.DCA6);
+  console.log(" Fading DCA7 from " + current.DCA7 + " to " + values.DCA7);
+  console.log(" Fading MIX12 from " + current.MIX12 + " to " + values.MIX12);
 
   //calculate the increment to move the fader
   inc.DCA6 = (current.DCA6-values.DCA6)/num;
@@ -435,7 +437,7 @@ function x32send(address, values) {
         setTimeout(callback, delay);
       },
       function (err) {
-        console.log("Fade complete");
+        console.log(" Fade complete");
         //These must be placed in here otherwise the node will execute them
         //between the setTimeout delay as it is async.
         current.DCA6 = values.DCA6;
@@ -443,6 +445,4 @@ function x32send(address, values) {
         current.MIX12 = values.MIX12;
       }
   );
-
-
 }
