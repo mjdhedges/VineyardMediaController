@@ -6,6 +6,7 @@ var io = require('socket.io')(http);
 var later = require('later');
 var moment = require('moment');
 var math = require('mathjs');
+var async = require('async');
 var osc = require('osc');
 
 //Internal Modules
@@ -78,14 +79,15 @@ var overrides = {
 };
 
 var x32config = {
-  "ip": "10.0.68.189",
+  "ip": "10.0.68.192",
   "port": 10023,
 };
 
+//on boot need to ask the x32 for these values
 var current = {
-  "DCA6": 0,
-  "DCA7": 0,
-  "MIX12": 0,
+  "DCA6": 1,
+  "DCA7": 1,
+  "MIX12": 1,
 };
 
 //Scheduling using Later.js
@@ -327,11 +329,6 @@ function Scene_one(){
   //Send fader positions to X32
   x32send(data.x32address, converted);
 
-  //update current fader settings
-  current.DCA6 = data.scene_one.x32.DCA6;
-  current.DCA7 = data.scene_one.x32.DCA7;
-  current.MIX12 = data.scene_one.x32.MIX12;
-
   //ADD AUDIO & VIDEO PLAYBACK HERE
 }
 
@@ -350,11 +347,6 @@ function Scene_two(){
   //Send fader positions to X32
   x32send(data.x32address, converted);
 
-  //update current fader settings
-  current.DCA6 = data.scene_two.x32.DCA6;
-  current.DCA7 = data.scene_two.x32.DCA7;
-  current.MIX12 = data.scene_two.x32.MIX12;
-
   //ADD AUDIO & VIDEO PLAYBACK HERE
 }
 
@@ -372,11 +364,6 @@ function Scene_three(){
 
   //Send fader positions to X32
   x32send(data.x32address, converted);
-
-  //update current fader settings
-  current.DCA6 = data.scene_three.x32.DCA6;
-  current.DCA7 = data.scene_three.x32.DCA7;
-  current.MIX12 = data.scene_three.x32.MIX12;
 
   //ADD AUDIO & VIDEO PLAYBACK HERE
 }
@@ -400,8 +387,7 @@ function Scene_four(){
 }
 
 //Send OSC data called when scenes run
-function x32send(addresses, values) {
-
+function x32send(address, values) {
   //fade faders over a 2sec
   var time = 2000;            //ms
   var rate = 50;              //number of sends per second
@@ -414,40 +400,49 @@ function x32send(addresses, values) {
     MIX12: 0,
   };
 
+  console.log("Fading DCA6 from " + current.DCA6 + " to " + values.DCA6);
+  console.log("Fading DCA7 from " + current.DCA7 + " to " + values.DCA7);
+  console.log("Fading MIX12 from " + current.MIX12 + " to " + values.MIX12);
+
   //calculate the increment to move the fader
   inc.DCA6 = (current.DCA6-values.DCA6)/num;
   inc.DCA7 = (current.DCA7-values.DCA7)/num;
   inc.MIX12 = (current.MIX12-values.MIX12)/num;
 
-  var send = setInterval(function(){
-    var fader = current.DCA6-(n *inc.DCA6);
-    osc.send({
-      address: fader,
-      args: values.DCA6
-    }, x32config.ip, x32config.port);
-    console.log(" x32 Send: " + addresses.DCA6 + ", " + values.DCA6);
+  async.whilst(
+      function () {return n < num+1;},
+      function (callback) {
+        var fader_DCA6 = current.DCA6-(n*inc.DCA6);
+        osc.send({
+          address: address.DCA6,
+          args: fader_DCA6,
+        }, x32config.ip, x32config.port);
 
-    osc.send({
-      address: addresses.DCA7,
-      args: values.DCA7
-    }, x32config.ip, x32config.port);
-    console.log(" x32 Send: " + addresses.DCA7 + ", " + values.DCA7);
+        var fader_DCA7 = current.DCA7-(n *inc.DCA7);
+        osc.send({
+          address: address.DCA7,
+          args: fader_DCA7,
+        }, x32config.ip, x32config.port);
 
-    osc.send({
-      address: addresses.MIX12,
-      args: values.MIX12
-    }, x32config.ip, x32config.port);
-    console.log(" x32 Send: " + addresses.MIX12 + ", " + values.MIX12);
+        var fader_MIX12 = current.MIX12-(n *inc.MIX12);
+        osc.send({
+          address: address.MIX12,
+          args: fader_MIX12,
+        }, x32config.ip, x32config.port);
 
-    console.log(n);
-    n = n++;    //Increment counter
-    if (n === num){
-      clearInterval(send);
-    }
-  }, delay);
+        //console.log(n);
+        n++;
+        setTimeout(callback, delay);
+      },
+      function (err) {
+        console.log("Fade complete");
+        //These must be placed in here otherwise the node will execute them
+        //between the setTimeout delay as it is async.
+        current.DCA6 = values.DCA6;
+        current.DCA7 = values.DCA7;
+        current.MIX12 = values.MIX12;
+      }
+  );
 
 
-  current.DCA6 = values.DCA6;
-  current.DCA7 = values.DCA7;
-  current.MIX12 = values.MIX12;
 }
