@@ -32,7 +32,7 @@
 #countdown {
   text-align: center;
   color: purple;
-  border: solid;
+/*  border: solid; */
   padding: 20px;
   font-size: 30px;
   font-weight: bold;
