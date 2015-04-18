@@ -79,7 +79,7 @@ var overrides = {
 };
 
 var x32config = {
-  "ip": "192.168.0.12",
+  "ip": "127.0.0.1",
   "port": 10023,
 };
 
@@ -111,7 +111,7 @@ var Scene_four_tick = later.setInterval(Scene_four, Scene_four_occur);
 //Create an osc.js UDP Port listening on port 10023
 var osc = new osc.UDPPort({
   localAddress: "0.0.0.0",
-  localPort: 10023
+  localPort: 10024
 });
 console.log("OSC Client sending to " + x32config.ip + ":" + x32config.port);
 
