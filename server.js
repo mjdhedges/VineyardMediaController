@@ -8,6 +8,7 @@ var moment = require('moment');
 var math = require('mathjs');
 var async = require('async');
 var osc = require('osc');
+var jf = require('jsonfile');
 
 //Internal Modules
 var convert = require('./convert.js');
@@ -68,6 +69,10 @@ var data = {
     "DCA6": "/dca/6/fader",
     "DCA7": "/dca/7/fader",
     "MIX12": "/bus/12/mix/fader",
+  },
+  "x32config": {
+    "ip": "192.168.0.12",
+    "port": 10023,
   }
 };
 
@@ -76,11 +81,6 @@ var overrides = {
     "MIX12": 0,
   },
   "scene": "scene_one",
-};
-
-var x32config = {
-  "ip": "192.168.0.12",
-  "port": 10023,
 };
 
 //on boot need to ask the x32 for these values
@@ -113,16 +113,16 @@ var osc = new osc.UDPPort({
   localAddress: "0.0.0.0",
   localPort: 10023
 });
-console.log("OSC Client sending to " + x32config.ip + ":" + x32config.port);
+console.log("OSC Client sending to " + data.x32config.ip + ":" + data.x32config.port);
 
 //Open the socket
 osc.open();
-console.log("OSC Server Listening on " + "0.0.0.0:" + x32config.port);
+console.log("OSC Server Listening on " + "0.0.0.0:" + data.x32config.port);
 //Set X32 to return changes, times out after 10s
 setInterval(function(){
   osc.send({
     address: "/info"
-  }, x32config.ip, x32config.port);
+  }, data.x32config.ip, data.x32config.port);
 }, 5000);
 
 //Listen for incoming OSC bundles
@@ -418,19 +418,19 @@ function x32send(address, values) {
         osc.send({
           address: address.DCA6,
           args: fader_DCA6,
-        }, x32config.ip, x32config.port);
+        }, data.x32config.ip, data.x32config.port);
 
         var fader_DCA7 = current.DCA7-(n *inc.DCA7);
         osc.send({
           address: address.DCA7,
           args: fader_DCA7,
-        }, x32config.ip, x32config.port);
+        }, data.x32config.ip, data.x32config.port);
 
         var fader_MIX12 = current.MIX12-(n *inc.MIX12);
         osc.send({
           address: address.MIX12,
           args: fader_MIX12,
-        }, x32config.ip, x32config.port);
+        }, data.x32config.ip, data.x32config.port);
 
         //console.log(n);
         n++;
