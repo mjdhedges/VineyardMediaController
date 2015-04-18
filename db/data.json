@@ -47,5 +47,9 @@
     "DCA6": "/dca/6/fader",
     "DCA7": "/dca/7/fader",
     "MIX12": "/bus/12/mix/fader"
+  },
+  "x32config": {
+    "ip": "192.168.0.12",
+    "port": 10023
   }
 }

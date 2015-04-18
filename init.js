@@ -53,20 +53,14 @@ var data = {
     "DCA6": "/dca/6/fader",
     "DCA7": "/dca/7/fader",
     "MIX12": "/bus/12/mix/fader",
+  },
+  "x32config": {
+    "ip": "192.168.0.12",
+    "port": 10023,
   }
 };
 
-var overrides = {
-  "x32": {
-    "MIX12": 0,
-  },
-  "scene": "scene_one",
-};
-
-var db;
-db.data = data;
-
-jf.writeFile(file, db, function(err) {
+jf.writeFile(file, data, function(err) {
   if (err !== null) {
     console.log(err);
     console.log('Initialisation failed');
