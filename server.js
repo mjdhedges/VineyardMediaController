@@ -130,6 +130,7 @@ osc.on("bundle", function(oscBundle) {
   console.log("An OSC bundle just arrived!", oscBundle);
 });
 
+
 //WEBSERVER SETUP
 //serves files in the public folder
 app.use(express.static(__dirname + '/public'));
