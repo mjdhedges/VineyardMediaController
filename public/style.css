@@ -1,10 +1,3 @@
-@media only screen and (min-width: 800px){
-  .ui-content {
-   width: 800px !important;
-   margin: 0 auto !important;
-   position: relative !important;
-}
-
 .ui-input-text {
     width : 200px;
 }​
