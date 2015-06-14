@@ -31,27 +31,13 @@
 
     <div data-role="page" id="page_home">
       <div data-role="header">
-        <a href="#page_home" class="ui-btn ui-corner-all  ui-icon-home ui-btn-icon-left">Home</a>
         <h1>Vineyard Media Controller</h1>
-        <a href="#page_settings" class="ui-btn ui-corner-all ui-icon-gear ui-btn-icon-left">Settings</a>
       </div>
 
       <div data-role="main" class="ui-content">
 
         <h3>Countdown until next change</h3>
         <div id="countdown">
-        </div>
-
-        <h3>Cafe Override</h3>
-        <label for="slider_MIX12_override">MIX12 - Cafe Level</label>
-        <input type="range" name="slider-fill" id="slider_MIX12_override" value="0" min="0" max="1024" data-highlight="true" data-popup-enabled="true" />
-
-        <h3>Scene Override</h3>
-        <div data-role="controlgroup" data-type="horizontal" id="buttons_scene_overide">
-          <a data-role="button" id="button_scene_one" value="scene_one">Scene One</a>
-          <a data-role="button" id="button_scene_two" value="scene_two">Scene Two</a>
-          <a data-role="button" id="button_scene_three" value="scene_three">Scene Three</a>
-          <a data-role="button" id="button_scene_four" value="scene_four">Scene Four</a>
         </div>
 
       </div> <!-- page_home content -->
@@ -61,65 +47,6 @@
       </div>
 
     </div> <!-- page_home -->
-
-    <div data-role="page" id="page_settings">
-
-      <div data-role="header">
-        <a href="#page_home" class="ui-btn ui-corner-all ui-icon-home ui-btn-icon-left">Home</a>
-        <h1>Vineyard Media Controller</h1>
-        <a href="#page_settings" class="ui-btn ui-corner-all ui-icon-gear ui-btn-icon-left">Settings</a>
-      </div>
-
-      <div data-role="main" class="ui-content">
-
-        <h3>Select Scene</h3>
-
-        <div class="ui-field-contain">
-          <label for="scene">Scene:</label>
-          <select id="scene" data-native-menu="false">
-            <option value="scene_one">One: First Announcement</option>
-            <option value="scene_two">Two: Music</option>
-            <option value="scene_three">Three: Second Announcement and Countdown</option>
-            <option value="scene_four">Four: Service</option>
-          </select>
-        </div>
-
-        <h3>Time Settings</h3>
-        <p>No error correction keep to format HH:MM:SS or it will fail!!
-        <div class="ui-field-contain">
-          <label for="Scene_start">Start time:</label>
-          <input type="text" name="Scene_start" id="Scene_start">
-        </div>
-
-        <h3>X32 Settings</h3>
-
-        <label for="slider_DCA6">DCA6 - Announcement/Video Level</label>
-        <input type="range" name="slider_DCA6" id="slider_DCA6" value="0" min="0" max="1024" data-highlight="true" data-popup-enabled="true"/>
-
-        <label for="sliderDCA7">DCA7 - Music Level</label>
-        <input type="range" name="slider_DCA7" id="slider_DCA7" value="0" min="0" max="1024" data-highlight="true" data-popup-enabled="true"/>
-
-        <label for="slider_MIX12">MIX12 - Cafe Level</label>
-        <input type="range" name="slider_MIX12" id="slider_MIX12" value="0" min="0" max="1024" data-highlight="true" data-popup-enabled="true"/>
-
-        <h3>Announcement & Video</h3>
-
-        <div class="ui-field-contain">
-          <label for="file">File:</label>
-          <select name="select" id="file" data-native-menu="false">
-            <option value="None">None</option>
-            <option value="Video_1">Video 1</option>
-            <option value="Audio_1">Audio 1</option>
-          </select>
-        </div>
-
-      </div> <!-- #page_settings content -->
-
-      <div data-role="footer">
-        <h1><div id="date_settings"></div></h1>
-      </div>
-
-    </div> <!-- #page_settings -->
 
   </body>
 </html>

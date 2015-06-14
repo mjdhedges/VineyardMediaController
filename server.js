@@ -9,9 +9,6 @@ var math = require('mathjs');
 var async = require('async');
 var osc = require('osc');
 
-//Internal Modules
-var convert = require('./convert.js');
-
 //Varibles
 var usernum = 0;
 
@@ -165,7 +162,7 @@ io.sockets.on('connection', function(socket){
   }, 1000);
 
   //Once connection is established send countdown timer
-  //TEMP CODE
+  //Time has to be converted to Hr/mins/sec every time
   var interval_countdown = setInterval(function(){
       var countdown = {
         'scene': "none",
@@ -197,6 +194,7 @@ io.sockets.on('connection', function(socket){
       //             Scene_four_schedule_next_ms + ", "
       // );
 
+      //Finds which scene is next
       //if x is less than y or x is less than z or x is less than f
       if(Scene_one_schedule_next_ms < Scene_two_schedule_next_ms && Scene_one_schedule_next_ms < Scene_three_schedule_next_ms && Scene_one_schedule_next_ms < Scene_four_schedule_next_ms){
         then = Scene_one_schedule_next;
@@ -206,10 +204,10 @@ io.sockets.on('connection', function(socket){
         countdown.scene = "Scene Two";
       } else if (Scene_three_schedule_next_ms < Scene_four_schedule_next_ms){
         then = Scene_three_schedule_next;
-        countdown.scene = "Scene three";
+        countdown.scene = "Scene Three";
       } else {
         then = Scene_four_schedule_next;
-        countdown.scene = "Scene four";
+        countdown.scene = "Scene Four";
       }
 
       //calculate the difference in milliseconds
@@ -241,34 +239,6 @@ io.sockets.on('connection', function(socket){
       socket.emit('countdown', countdown);
   }, 1000);
 
-	//Waits for data
-  socket.on('data', function(recieved_data){
-    data = recieved_data;
-    socket.broadcast.emit('data', data);
-    console.log("Data Recieved");
-    Scene_update();
-  });
-
-  //Waits for override
-  socket.on('override', function(recieved_overrides){
-    overrides = recieved_overrides;
-    //socket.broadcast.emit('override', overrides);
-    console.log("Overrides Recieved");
-
-    if (overrides.scene === "scene_one") {
-      Scene_one();
-    } else if (overrides.scene === "scene_two") {
-      Scene_two();
-    } else if (overrides.scene === "scene_three") {
-      Scene_three();
-    } else if (overrides.scene === "scene_four") {
-      Scene_four();
-    } else {
-      console.log("Error: Override failed");
-    }
-
-  });
-
   //On Disconnection
   socket.on('disconnect', function(){
     //Stop intervals
@@ -278,42 +248,6 @@ io.sockets.on('connection', function(socket){
 	  console.log('user ' + usernum + ' disconnected');
   });
 });
-
-//Update Scene Schedule
-function Scene_update() {
-  //Should probally check for changes and only restarted changed schedules
-
-  //Clear Current Schedules
-  Scene_one_tick.clear();
-  Scene_two_tick.clear();
-  Scene_three_tick.clear();
-  Scene_four_tick.clear();
-
-  console.log(" Schedules Cleared");
-
-  //Update Occurances
-  Scene_one_occur = later.parse.recur().on(1).dayOfWeek().on(data.scene_one.schedule.start).time();
-  Scene_two_occur = later.parse.recur().on(1).dayOfWeek().on(data.scene_two.schedule.start).time();
-  Scene_three_occur = later.parse.recur().on(1).dayOfWeek().on(data.scene_three.schedule.start).time();
-  Scene_four_occur = later.parse.recur().on(1).dayOfWeek().on(data.scene_four.schedule.start).time();
-
-  //Update Schedules
-  Scene_one_schedule = later.schedule(Scene_one_occur);
-  Scene_two_schedule = later.schedule(Scene_two_occur);
-  Scene_three_schedule = later.schedule(Scene_three_occur);
-  Scene_four_schedule = later.schedule(Scene_four_occur);
-
-  console.log(" Schedules Updated");
-
-  //Restart Schedules with Updated times
-  Scene_one_tick = later.setInterval(Scene_one, Scene_one_occur);
-  Scene_two_tick = later.setInterval(Scene_two, Scene_two_occur);
-  Scene_three_tick = later.setInterval(Scene_three, Scene_three_occur);
-  Scene_four_tick = later.setInterval(Scene_four, Scene_four_occur);
-
-  console.log(" Schedules Started");
-
-}
 
 //Run Scenes when schedule fires
 function Scene_one(){
