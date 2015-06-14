@@ -14,8 +14,6 @@ var usernum = 0;
 
 //JSON Varibles
 //defined scenes, for each sense define settings
-//this will not save data if the server is restarted!!!
-//MUST BE CONVERTED TO DATABASE!!
 var data = {
   "scene_one": {
 		"schedule": {
