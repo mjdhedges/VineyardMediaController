@@ -23,18 +23,18 @@ var usernum = 0;
 var data = {
   "scene_one": {
 		"schedule": {
-			"start": "10:20:00",
+			"start": "9:20:00",
 		},
 		"x32":{
 			"DCA6": 700,
 			"DCA7": 0,
-			"MIX12": 450,
+			"MIX12": 420,
 		},
 		"file": "Audio_1",
 	},
 	"scene_two": {
     "schedule": {
-			"start": "10:21:00",
+			"start": "9:21:00",
 		},
 		"x32":{
 			"DCA6": 0,
@@ -45,22 +45,22 @@ var data = {
 	},
 	"scene_three": {
     "schedule": {
-			"start": "10:28:00",
+			"start": "9:28:00",
 		},
 		"x32":{
 			"DCA6": 700,
 			"DCA7": 0,
-			"MIX12": 450,
+			"MIX12": 420,
 		},
 		"file": "Video_1",
 	},
 	"scene_four": {
     "schedule": {
-			"start": "10:30:00",
+			"start": "9:30:00",
 		},
 		"x32":{
 			"DCA6": 0,
-			"DCA7": 300,
+			"DCA7": 0,
 			"MIX12": 250,
 		},
 		"file": "None",
