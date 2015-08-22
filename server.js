@@ -8,6 +8,7 @@ var moment = require('moment')
 var math = require('mathjs')
 var async = require('async')
 var osc = require('osc')
+var omxctrl = require('omxctrl')
 
 // Internal Modules
 var convert = require('./convert.js')
@@ -22,7 +23,7 @@ var usernum = 0
 var data = {
   'scene_one': {
     'schedule': {
-      'start': '9:20:00'
+      'start': '14:05:00'
     },
     'x32': {
       'DCA6': 700,
@@ -33,7 +34,7 @@ var data = {
   },
   'scene_two': {
     'schedule': {
-      'start': '9:21:00'
+      'start': '14:06:00'
     },
     'x32': {
       'DCA6': 0,
@@ -44,7 +45,7 @@ var data = {
   },
   'scene_three': {
     'schedule': {
-      'start': '9:28:00'
+      'start': '14:8:00'
     },
     'x32': {
       'DCA6': 700,
@@ -55,7 +56,7 @@ var data = {
   },
   'scene_four': {
     'schedule': {
-      'start': '9:30:00'
+      'start': '14:12:00'
     },
     'x32': {
       'DCA6': 0,
@@ -92,10 +93,11 @@ var current = {
 
 // Scheduling using Later.js
 // Initialise Occurances using saved data
-var Scene_one_occur = later.parse.recur().on(1).dayOfWeek().on(data.scene_one.schedule.start).time()
-var Scene_two_occur = later.parse.recur().on(1).dayOfWeek().on(data.scene_two.schedule.start).time()
-var Scene_three_occur = later.parse.recur().on(1).dayOfWeek().on(data.scene_three.schedule.start).time()
-var Scene_four_occur = later.parse.recur().on(1).dayOfWeek().on(data.scene_four.schedule.start).time()
+// .on(1). Sunday
+var Scene_one_occur = later.parse.recur().every(1).dayOfWeek().on(data.scene_one.schedule.start).time()
+var Scene_two_occur = later.parse.recur().every(1).dayOfWeek().on(data.scene_two.schedule.start).time()
+var Scene_three_occur = later.parse.recur().every(1).dayOfWeek().on(data.scene_three.schedule.start).time()
+var Scene_four_occur = later.parse.recur().every(1).dayOfWeek().on(data.scene_four.schedule.start).time()
 // Create Schedules for use by countdown timer
 var Scene_one_schedule = later.schedule(Scene_one_occur)
 var Scene_two_schedule = later.schedule(Scene_two_occur)
@@ -142,6 +144,15 @@ app.get('/', function (req, res) {
 // starts web server on port 8888
 http.listen(8888, function () {
   console.log('webserver listening on *:8888')
+})
+
+// OMXPLAYER listen for responses
+omxctrl.on('playing', function (filename) {
+  console.log('omxplayer: playing ', filename)
+})
+
+omxctrl.on('ended', function () {
+  console.log('omxplayer: playback has ended')
 })
 
 // BROWSER IO
@@ -294,10 +305,10 @@ function Scene_update () {
   console.log(' Schedules Cleared')
 
   // Update Occurances
-  Scene_one_occur = later.parse.recur().on(1).dayOfWeek().on(data.scene_one.schedule.start).time()
-  Scene_two_occur = later.parse.recur().on(1).dayOfWeek().on(data.scene_two.schedule.start).time()
-  Scene_three_occur = later.parse.recur().on(1).dayOfWeek().on(data.scene_three.schedule.start).time()
-  Scene_four_occur = later.parse.recur().on(1).dayOfWeek().on(data.scene_four.schedule.start).time()
+  Scene_one_occur = later.parse.recur().every(1).dayOfWeek().on(data.scene_one.schedule.start).time()
+  Scene_two_occur = later.parse.recur().every(1).dayOfWeek().on(data.scene_two.schedule.start).time()
+  Scene_three_occur = later.parse.recur().every(1).dayOfWeek().on(data.scene_three.schedule.start).time()
+  Scene_four_occur = later.parse.recur().every(1).dayOfWeek().on(data.scene_four.schedule.start).time()
 
   // Update Schedules
   Scene_one_schedule = later.schedule(Scene_one_occur)
@@ -334,6 +345,7 @@ function Scene_one () {
   x32send(data.x32address, converted)
 
   // ADD AUDIO & VIDEO PLAYBACK HERE
+  // NO VIDEO
 }
 
 function Scene_two () {
@@ -352,6 +364,7 @@ function Scene_two () {
   x32send(data.x32address, converted)
 
   // ADD AUDIO & VIDEO PLAYBACK HERE
+  omxctrl.play('/home/pi/media/Georgia-10-min+silence_2.m4a')
 }
 
 function Scene_three () {
@@ -370,6 +383,7 @@ function Scene_three () {
   x32send(data.x32address, converted)
 
   // ADD AUDIO & VIDEO PLAYBACK HERE
+  // NO VIDEO
 }
 
 function Scene_four () {
@@ -388,6 +402,7 @@ function Scene_four () {
   x32send(data.x32address, converted)
 
   // ADD AUDIO & VIDEO PLAYBACK HERE
+  omxctrl.play('/home/pi/media/WtE-Countdown-v3-720p_2.mp4')
 }
 
 // Send OSC data called when scenes run
