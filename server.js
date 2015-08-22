@@ -11,7 +11,7 @@ var osc = require('osc')
 var omxctrl = require('omxctrl')
 
 // Internal Modules
-var convert = require('./convert.js')
+// var convert = require('./convert.js')
 
 // Varibles
 var usernum = 0
@@ -22,30 +22,31 @@ var usernum = 0
 // MUST BE CONVERTED TO DATABASE!!
 var data = {
   'scene_one': {
+    'name': 'Welcome',
     'schedule': {
-      'start': '14:05:00'
+      'start': '15:20:00'
     },
     'x32': {
       'DCA6': 700,
       'DCA7': 0,
       'MIX12': 420
-    },
-    'file': 'Audio_1'
+    }
   },
   'scene_two': {
+    'name': 'Service',
     'schedule': {
-      'start': '14:06:00'
+      'start': '15:30:00'
     },
     'x32': {
       'DCA6': 0,
       'DCA7': 350,
       'MIX12': 400
-    },
-    'file': 'None'
+    }
   },
-  'scene_three': {
+  'media_one': {
+    'name': 'Announcement',
     'schedule': {
-      'start': '14:8:00'
+      'start': '15:21:00'
     },
     'x32': {
       'DCA6': 700,
@@ -54,9 +55,10 @@ var data = {
     },
     'file': 'Video_1'
   },
-  'scene_four': {
+  'media_two': {
+    'name': 'Countdown',
     'schedule': {
-      'start': '14:12:00'
+      'start': '15:25:00'
     },
     'x32': {
       'DCA6': 0,
@@ -94,20 +96,20 @@ var current = {
 // Scheduling using Later.js
 // Initialise Occurances using saved data
 // .on(1). Sunday
-var Scene_one_occur = later.parse.recur().every(1).dayOfWeek().on(data.scene_one.schedule.start).time()
-var Scene_two_occur = later.parse.recur().every(1).dayOfWeek().on(data.scene_two.schedule.start).time()
-var Scene_three_occur = later.parse.recur().every(1).dayOfWeek().on(data.scene_three.schedule.start).time()
-var Scene_four_occur = later.parse.recur().every(1).dayOfWeek().on(data.scene_four.schedule.start).time()
+var scene_one_occur = later.parse.recur().every(1).dayOfWeek().on(data.scene_one.schedule.start).time()
+var scene_two_occur = later.parse.recur().every(1).dayOfWeek().on(data.scene_two.schedule.start).time()
+var media_one_occur = later.parse.recur().every(1).dayOfWeek().on(data.media_one.schedule.start).time()
+var media_two_occur = later.parse.recur().every(1).dayOfWeek().on(data.media_two.schedule.start).time()
 // Create Schedules for use by countdown timer
-var Scene_one_schedule = later.schedule(Scene_one_occur)
-var Scene_two_schedule = later.schedule(Scene_two_occur)
-var Scene_three_schedule = later.schedule(Scene_three_occur)
-var Scene_four_schedule = later.schedule(Scene_four_occur)
+var scene_one_schedule = later.schedule(scene_one_occur)
+var scene_two_schedule = later.schedule(scene_two_occur)
+var media_one_schedule = later.schedule(media_one_occur)
+var media_two_schedule = later.schedule(media_two_occur)
 // Start Occurances
-var Scene_one_tick = later.setInterval(Scene_one, Scene_one_occur)
-var Scene_two_tick = later.setInterval(Scene_two, Scene_two_occur)
-var Scene_three_tick = later.setInterval(Scene_three, Scene_three_occur)
-var Scene_four_tick = later.setInterval(Scene_four, Scene_four_occur)
+var scene_one_tick = later.setInterval(scene_one, scene_one_occur)
+var scene_two_tick = later.setInterval(scene_two, scene_two_occur)
+var media_one_tick = later.setInterval(media_one, media_one_occur)
+var media_two_tick = later.setInterval(media_two, media_two_occur)
 
 // OSC SETUP
 // Create an osc.js UDP Port listening on port 10023
@@ -163,7 +165,7 @@ io.sockets.on('connection', function (socket) {
   // Find users ip address
   var address = socket.request.connection.remoteAddress
 
-    // logs user connections
+  // logs user connections
   console.log('user ' + usernum + ', connected from: ' + address + ', connected using: ' + socket.conn.transport.name)
   // Send data when user connects
 
@@ -193,36 +195,36 @@ io.sockets.on('connection', function (socket) {
       var now = moment()
 
       // Generate moments for the next schedules
-      var Scene_one_schedule_next = moment(Scene_one_schedule.next(1))
-      var Scene_two_schedule_next = moment(Scene_two_schedule.next(1))
-      var Scene_three_schedule_next = moment(Scene_three_schedule.next(1))
-      var Scene_four_schedule_next = moment(Scene_four_schedule.next(1))
+      var scene_one_schedule_next = moment(scene_one_schedule.next(1))
+      var scene_two_schedule_next = moment(scene_two_schedule.next(1))
+      var media_one_schedule_next = moment(media_one_schedule.next(1))
+      var media_two_schedule_next = moment(media_two_schedule.next(1))
 
       // ms till event
-      var Scene_one_schedule_next_ms = Scene_one_schedule_next.diff(now, 'milliseconds', true)
-      var Scene_two_schedule_next_ms = Scene_two_schedule_next.diff(now, 'milliseconds', true)
-      var Scene_three_schedule_next_ms = Scene_three_schedule_next.diff(now, 'milliseconds', true)
-      var Scene_four_schedule_next_ms = Scene_four_schedule_next.diff(now, 'milliseconds', true)
+      var scene_one_schedule_next_ms = scene_one_schedule_next.diff(now, 'milliseconds', true)
+      var scene_two_schedule_next_ms = scene_two_schedule_next.diff(now, 'milliseconds', true)
+      var media_one_schedule_next_ms = media_one_schedule_next.diff(now, 'milliseconds', true)
+      var media_two_schedule_next_ms = media_two_schedule_next.diff(now, 'milliseconds', true)
 
-      //  console.log(Scene_one_schedule_next_ms + ', ' +
-      //              Scene_two_schedule_next_ms + ', ' +
-      //              Scene_three_schedule_next_ms + ', ' +
-      //              Scene_four_schedule_next_ms + ', '
+      //  console.log(scene_one_schedule_next_ms + ', ' +
+      //              scene_two_schedule_next_ms + ', ' +
+      //              media_one_schedule_next_ms + ', ' +
+      //              media_two_schedule_next_ms + ', '
       //  )
 
       // if x is less than y or x is less than z or x is less than f
-      if (Scene_one_schedule_next_ms < Scene_two_schedule_next_ms && Scene_one_schedule_next_ms < Scene_three_schedule_next_ms && Scene_one_schedule_next_ms < Scene_four_schedule_next_ms) {
-        then = Scene_one_schedule_next
-        countdown.scene = 'Scene One'
-      } else if (Scene_two_schedule_next_ms < Scene_three_schedule_next_ms && Scene_two_schedule_next_ms < Scene_four_schedule_next_ms) {
-        then = Scene_two_schedule_next
-        countdown.scene = 'Scene Two'
-      } else if (Scene_three_schedule_next_ms < Scene_four_schedule_next_ms) {
-        then = Scene_three_schedule_next
-        countdown.scene = 'Scene three'
+      if (scene_one_schedule_next_ms < scene_two_schedule_next_ms && scene_one_schedule_next_ms < media_one_schedule_next_ms && scene_one_schedule_next_ms < media_two_schedule_next_ms) {
+        then = scene_one_schedule_next
+        countdown.scene = 'Scene One: ' + data.scene_one.name
+      } else if (scene_two_schedule_next_ms < media_one_schedule_next_ms && scene_two_schedule_next_ms < media_two_schedule_next_ms) {
+        then = scene_two_schedule_next
+        countdown.scene = 'Scene Two: ' + data.scene_two.name
+      } else if (media_one_schedule_next_ms < media_two_schedule_next_ms) {
+        then = media_one_schedule_next
+        countdown.scene = 'Media One: ' + data.media_one.name
       } else {
-        then = Scene_four_schedule_next
-        countdown.scene = 'Scene four'
+        then = media_two_schedule_next
+        countdown.scene = 'Media Two: ' + data.media_two.name
       }
 
       // calculate the difference in milliseconds
@@ -269,13 +271,13 @@ io.sockets.on('connection', function (socket) {
     console.log('Overrides Recieved')
 
     if (overrides.scene === 'scene_one') {
-      Scene_one()
+      scene_one()
     } else if (overrides.scene === 'scene_two') {
-      Scene_two()
-    } else if (overrides.scene === 'scene_three') {
-      Scene_three()
-    } else if (overrides.scene === 'scene_four') {
-      Scene_four()
+      scene_two()
+    } else if (overrides.scene === 'media_one') {
+      media_one()
+    } else if (overrides.scene === 'media_two') {
+      media_two()
     } else {
       console.log('Error: Override failed')
     }
@@ -297,40 +299,40 @@ function Scene_update () {
   // Should probally check for changes and only restarted changed schedules
 
   // Clear Current Schedules
-  Scene_one_tick.clear()
-  Scene_two_tick.clear()
-  Scene_three_tick.clear()
-  Scene_four_tick.clear()
+  scene_one_tick.clear()
+  scene_two_tick.clear()
+  media_one_tick.clear()
+  media_two_tick.clear()
 
   console.log(' Schedules Cleared')
 
   // Update Occurances
-  Scene_one_occur = later.parse.recur().every(1).dayOfWeek().on(data.scene_one.schedule.start).time()
-  Scene_two_occur = later.parse.recur().every(1).dayOfWeek().on(data.scene_two.schedule.start).time()
-  Scene_three_occur = later.parse.recur().every(1).dayOfWeek().on(data.scene_three.schedule.start).time()
-  Scene_four_occur = later.parse.recur().every(1).dayOfWeek().on(data.scene_four.schedule.start).time()
+  scene_one_occur = later.parse.recur().every(1).dayOfWeek().on(data.scene_one.schedule.start).time()
+  scene_two_occur = later.parse.recur().every(1).dayOfWeek().on(data.scene_two.schedule.start).time()
+  media_one_occur = later.parse.recur().every(1).dayOfWeek().on(data.media_one.schedule.start).time()
+  media_two_occur = later.parse.recur().every(1).dayOfWeek().on(data.media_two.schedule.start).time()
 
   // Update Schedules
-  Scene_one_schedule = later.schedule(Scene_one_occur)
-  Scene_two_schedule = later.schedule(Scene_two_occur)
-  Scene_three_schedule = later.schedule(Scene_three_occur)
-  Scene_four_schedule = later.schedule(Scene_four_occur)
+  scene_one_schedule = later.schedule(scene_one_occur)
+  scene_two_schedule = later.schedule(scene_two_occur)
+  media_one_schedule = later.schedule(media_one_occur)
+  media_two_schedule = later.schedule(media_two_occur)
 
   console.log(' Schedules Updated')
 
   // Restart Schedules with Updated times
-  Scene_one_tick = later.setInterval(Scene_one, Scene_one_occur)
-  Scene_two_tick = later.setInterval(Scene_two, Scene_two_occur)
-  Scene_three_tick = later.setInterval(Scene_three, Scene_three_occur)
-  Scene_four_tick = later.setInterval(Scene_four, Scene_four_occur)
+  scene_one_tick = later.setInterval(scene_one, scene_one_occur)
+  scene_two_tick = later.setInterval(scene_two, scene_two_occur)
+  media_one_tick = later.setInterval(media_one, media_one_occur)
+  media_two_tick = later.setInterval(media_two, media_two_occur)
 
   console.log(' Schedules Started')
 
 }
 
 // Run Scenes when schedule fires
-function Scene_one () {
-  console.log('Scene One')
+function scene_one () {
+  console.log('scene one: ' + data.scene_one.name)
 
   var converted = {
     'DCA6': 0,
@@ -344,12 +346,11 @@ function Scene_one () {
   // Send fader positions to X32
   x32send(data.x32address, converted)
 
-  // ADD AUDIO & VIDEO PLAYBACK HERE
-  // NO VIDEO
+  // Add wepage for 'slide show'
 }
 
-function Scene_two () {
-  console.log('Scene Two')
+function scene_two () {
+  console.log('scene two: ' + data.scene_two.name)
 
   var converted = {
     'DCA6': 0,
@@ -363,40 +364,40 @@ function Scene_two () {
   // Send fader positions to X32
   x32send(data.x32address, converted)
 
-  // ADD AUDIO & VIDEO PLAYBACK HERE
-  omxctrl.play('/home/pi/media/Georgia-10-min+silence_2.m4a')
+  // Webpage for 'Please take your seat'
+
 }
 
-function Scene_three () {
-  console.log('Scene Three')
+function media_one () {
+  console.log('media one: ' + data.media_one.name)
 
   var converted = {
     'DCA6': 0,
     'DCA7': 0,
     'MIX12': 0
   }
-  converted.DCA6 = data.scene_three.x32.DCA6 * (1 / 1024)
-  converted.DCA7 = data.scene_three.x32.DCA7 * (1 / 1024)
-  converted.MIX12 = data.scene_three.x32.MIX12 * (1 / 1024)
+  converted.DCA6 = data.media_one.x32.DCA6 * (1 / 1024)
+  converted.DCA7 = data.media_one.x32.DCA7 * (1 / 1024)
+  converted.MIX12 = data.media_one.x32.MIX12 * (1 / 1024)
 
   // Send fader positions to X32
   x32send(data.x32address, converted)
 
   // ADD AUDIO & VIDEO PLAYBACK HERE
-  // NO VIDEO
+  omxctrl.play('/home/pi/media/Georgia-10-min+silence_2.m4a')
 }
 
-function Scene_four () {
-  console.log('Scene Four')
+function media_two () {
+  console.log('media two: ' + data.media_two.name)
 
   var converted = {
     'DCA6': 0,
     'DCA7': 0,
     'MIX12': 0
   }
-  converted.DCA6 = data.scene_four.x32.DCA6 * (1 / 1024)
-  converted.DCA7 = data.scene_four.x32.DCA7 * (1 / 1024)
-  converted.MIX12 = data.scene_four.x32.MIX12 * (1 / 1024)
+  converted.DCA6 = data.media_two.x32.DCA6 * (1 / 1024)
+  converted.DCA7 = data.media_two.x32.DCA7 * (1 / 1024)
+  converted.MIX12 = data.media_two.x32.MIX12 * (1 / 1024)
 
   // Send fader positions to X32
   x32send(data.x32address, converted)
@@ -455,7 +456,7 @@ function x32send (address, values) {
       },
       function (err) {
         console.log(' Fade complete')
-        // These must be placed in here otherwise the node will execute them
+        // These must be placed in here otherwise node will execute them
         // between the setTimeout delay as it is async.
         current.DCA6 = values.DCA6
         current.DCA7 = values.DCA7

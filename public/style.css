@@ -29,7 +29,16 @@
   text-align: center;
 }
 
-#countdown {
+#countdown_name {
+  text-align: center;
+  color: purple;
+/*  border: solid; */
+  padding: 20px;
+  font-size: 30px;
+  font-weight: bold;
+}
+
+#countdown_time {
   text-align: center;
   color: purple;
 /*  border: solid; */
@@ -47,5 +56,9 @@
 }
 
 #buttons_scene_overide {
+  text-align: center;
+}
+
+#buttons_media_overide {
   text-align: center;
 }

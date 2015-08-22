@@ -39,20 +39,26 @@
       <div data-role="main" class="ui-content">
 
         <h3>Countdown until next change</h3>
-        <div id="countdown">
+        <div id="countdown_name">
+        </div>
+        <div id="countdown_time">
         </div>
 
-        <h3>Cafe Override</h3>
+        <h3>Go to Scene</h3>
+        <div data-role="controlgroup" data-type="horizontal" id="buttons_scene_overide">
+          <a data-role="button" id="button_scene_one" value="scene_one">Welcome</a>
+          <a data-role="button" id="button_scene_two" value="scene_two">Service</a>
+        </div>
+
+        <h3>Play Media</h3>
+        <div data-role="controlgroup" data-type="horizontal" id="buttons_media_overide">
+          <a data-role="button" id="button_media_one" value="media_one">Announcement</a>
+          <a data-role="button" id="button_media_two" value="media_two">Countdown</a>
+        </div>
+
+        <h3>Cafe Level</h3>
         <label for="slider_MIX12_override">MIX12 - Cafe Level</label>
         <input type="range" name="slider-fill" id="slider_MIX12_override" value="0" min="0" max="1024" data-highlight="true" data-popup-enabled="true" />
-
-        <h3>Scene Override</h3>
-        <div data-role="controlgroup" data-type="horizontal" id="buttons_scene_overide">
-          <a data-role="button" id="button_scene_one" value="scene_one">Scene One</a>
-          <a data-role="button" id="button_scene_two" value="scene_two">Scene Two</a>
-          <a data-role="button" id="button_scene_three" value="scene_three">Scene Three</a>
-          <a data-role="button" id="button_scene_four" value="scene_four">Scene Four</a>
-        </div>
 
       </div> <!-- page_home content -->
 
@@ -79,8 +85,8 @@
           <select id="scene" data-native-menu="false">
             <option value="scene_one">One: First Announcement</option>
             <option value="scene_two">Two: Music</option>
-            <option value="scene_three">Three: Second Announcement and Countdown</option>
-            <option value="scene_four">Four: Service</option>
+            <option value="media_one">Three: Second Announcement and Countdown</option>
+            <option value="media_two">Four: Service</option>
           </select>
         </div>
 
