@@ -149,9 +149,11 @@ http.listen(8888, function () {
 io.sockets.on('connection', function (socket) {
   // Give users a number
   usernum++
+  // Find users ip address
+  var address = socket.handshake.address
 
-  // logs user connections
-  console.log('user ' + usernum + ' connected using: ' + socket.conn.transport.name)
+    // logs user connections
+  console.log('user ' + usernum + ', connected from: ' + address + ', connected using: ' + socket.conn.transport.name)
   // Send data when user connects
 
   socket.emit('data', data)
