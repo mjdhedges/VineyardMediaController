@@ -35,7 +35,7 @@ var data = {
     'schedule': {
       'start': '9:21:00'
     },
-    'x32':{
+    'x32': {
       'DCA6': 0,
       'DCA7': 350,
       'MIX12': 400
@@ -150,7 +150,7 @@ io.sockets.on('connection', function (socket) {
   // Give users a number
   usernum++
   // Find users ip address
-  var address = socket.handshake.address
+  var address = socket.request.connection.remoteAddress
 
     // logs user connections
   console.log('user ' + usernum + ', connected from: ' + address + ', connected using: ' + socket.conn.transport.name)
