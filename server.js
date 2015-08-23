@@ -9,6 +9,7 @@ var math = require('mathjs')
 var async = require('async')
 var osc = require('osc')
 var omxctrl = require('omxctrl')
+var jsonfile = require('jsonfile')
 
 // Internal Modules
 // var convert = require('./convert.js')
@@ -22,50 +23,50 @@ var usernum = 0
 // MUST BE CONVERTED TO DATABASE!!
 var data = {
   'scene_one': {
-    'name': 'Welcome',
+    'name': 'scene one',
     'schedule': {
-      'start': '15:20:00'
+      'start': '00:00:00'
     },
     'x32': {
-      'DCA6': 700,
+      'DCA6': 0,
       'DCA7': 0,
-      'MIX12': 420
+      'MIX12': 0
     }
   },
   'scene_two': {
-    'name': 'Service',
+    'name': 'scene two',
     'schedule': {
-      'start': '15:30:00'
+      'start': '00:30:00'
     },
     'x32': {
       'DCA6': 0,
-      'DCA7': 350,
-      'MIX12': 400
+      'DCA7': 0,
+      'MIX12': 0
     }
   },
   'media_one': {
-    'name': 'Announcement',
+    'name': 'media one',
     'schedule': {
-      'start': '15:21:00'
-    },
-    'x32': {
-      'DCA6': 700,
-      'DCA7': 0,
-      'MIX12': 420
-    },
-    'file': 'Video_1'
-  },
-  'media_two': {
-    'name': 'Countdown',
-    'schedule': {
-      'start': '15:25:00'
+      'start': '00:01:00'
     },
     'x32': {
       'DCA6': 0,
       'DCA7': 0,
-      'MIX12': 250
+      'MIX12': 0
     },
-    'file': 'None'
+    'file': ''
+  },
+  'media_two': {
+    'name': '',
+    'schedule': {
+      'start': '00:02:00'
+    },
+    'x32': {
+      'DCA6': 0,
+      'DCA7': 0,
+      'MIX12': 0
+    },
+    'file': ''
   },
   'x32address': {
     'DCA6': '/dca/6/fader',
@@ -110,6 +111,19 @@ var scene_one_tick = later.setInterval(scene_one, scene_one_occur)
 var scene_two_tick = later.setInterval(scene_two, scene_two_occur)
 var media_one_tick = later.setInterval(media_one, media_one_occur)
 var media_two_tick = later.setInterval(media_two, media_two_occur)
+
+// Load data from json
+// As this is async it will take a while to come back and so the schedules need
+// reinitalising
+var file = './db/data.json'
+jsonfile.readFile(file, function (err, obj) {
+  if (err) {
+    throw (err)
+  }
+  data = obj
+  Scene_update()
+  console.log('Database Read Successful')
+})
 
 // OSC SETUP
 // Create an osc.js UDP Port listening on port 10023
@@ -261,6 +275,7 @@ io.sockets.on('connection', function (socket) {
     data = recieved_data
     socket.broadcast.emit('data', data)
     console.log('Data Recieved')
+    Write()
     Scene_update()
   })
 
@@ -293,6 +308,18 @@ io.sockets.on('connection', function (socket) {
     console.log('user ' + usernum + ' disconnected')
   })
 })
+
+// Save Data and update local
+function Write () {
+  jsonfile.writeFile(file, data, function (err) {
+    if (err !== null) {
+      console.log(err)
+      console.log('Database Write Failed')
+    } else {
+      console.log('Database Write Successful')
+    }
+  })
+}
 
 // Update Scene Schedule
 function Scene_update () {
