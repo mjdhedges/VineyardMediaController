@@ -10,6 +10,7 @@ var async = require('async')
 var osc = require('osc')
 var omxctrl = require('omxctrl')
 var jsonfile = require('jsonfile')
+var os = require("os")
 
 // Internal Modules
 // var convert = require('./convert.js')
@@ -121,8 +122,8 @@ jsonfile.readFile(file, function (err, obj) {
     throw (err)
   }
   data = obj
-  Scene_update()
   console.log('Database Read Successful')
+  Scene_update()
 })
 
 // OSC SETUP
@@ -149,6 +150,9 @@ osc.on('bundle', function (oscBundle) {
 })
 
 // WEBSERVER SETUP
+// find hostname and define port
+var serverhostname = os.hostname()
+var serverport = 80
 // serves files in the public folder
 app.use(express.static(__dirname + '/public'))
 // called when the web server is requested
@@ -158,15 +162,14 @@ app.get('/', function (req, res) {
   console.log('index.html requested')
 })
 // starts web server on port 8888
-http.listen(8888, function () {
-  console.log('webserver listening on *:8888')
+http.listen(serverport, function () {
+  console.log('webserver listening on ' + serverhostname + ':' + serverport)
 })
 
 // OMXPLAYER listen for responses
 omxctrl.on('playing', function (filename) {
   console.log('omxplayer: playing ', filename)
 })
-
 omxctrl.on('ended', function () {
   console.log('omxplayer: playback has ended')
 })
@@ -177,10 +180,11 @@ io.sockets.on('connection', function (socket) {
   // Give users a number
   usernum++
   // Find users ip address
-  var address = socket.request.connection.remoteAddress
+  var clientaddress = socket.request.connection.remoteAddress
+  var clienthostname = socket.request.connection.hostname
 
   // logs user connections
-  console.log('user ' + usernum + ', connected from: ' + address + ', connected using: ' + socket.conn.transport.name)
+  console.log('user ' + usernum + ', connected from: ' + clientaddress + ' ' + clienthostname + ', connected using: ' + socket.conn.transport.name)
   // Send data when user connects
 
   socket.emit('data', data)

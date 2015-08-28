@@ -78,16 +78,21 @@
 
       <div data-role="main" class="ui-content">
 
-        <h3>Select Scene</h3>
+        <h3>Select Scene Or Media</h3>
 
         <div class="ui-field-contain">
-          <label for="scene">Scene:</label>
           <select id="scene" data-native-menu="false">
-            <option value="scene_one">One: First Announcement</option>
+            <option value="scene_one">Scene One: </option>
             <option value="scene_two">Two: Music</option>
             <option value="media_one">Three: Second Announcement and Countdown</option>
             <option value="media_two">Four: Service</option>
           </select>
+        </div>
+
+        <h3>Name</h3>
+        <div class="ui-field-contain">
+          <label for="Scene_start">Name:</label>
+          <input type="text" name="Scene_name" id="Scene_name">
         </div>
 
         <h3>Time Settings</h3>
@@ -97,7 +102,7 @@
           <input type="text" name="Scene_start" id="Scene_start">
         </div>
 
-        <h3>X32 Settings</h3>
+        <h3>X32 Fader Settings</h3>
 
         <label for="slider_DCA6">DCA6 - Announcement/Video Level</label>
         <input type="range" name="slider_DCA6" id="slider_DCA6" value="0" min="0" max="1024" data-highlight="true" data-popup-enabled="true"/>

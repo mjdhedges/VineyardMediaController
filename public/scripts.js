@@ -10,7 +10,11 @@ var overrides = {}
 function page_settings_update () {
   // Code aborts if refresh is called when html does not exist (home page)
   if($.mobile.activePage.attr('id') == 'page_settings') {
+    //var options = "<option value='scene_one'> Scene One: " + data.scene_one.name + "</option>"
+    //$('#scene').find('option').remove().end().append($(options));
+
     var scene = $('#scene option:selected').val()
+    $('#Scene_name').val(data[scene].name)
     $('#Scene_start').val(data[scene].schedule.start)
     $('#slider_DCA6').val(data[scene].x32.DCA6).slider('refresh')
     $('#slider_DCA7').val(data[scene].x32.DCA7).slider('refresh')
@@ -78,11 +82,16 @@ $(document).on('pageinit', function () {
   })
 
   // Monitor changes to update GUI
-  $('#scene').bind( 'change', function (event, ui) {
+  $('#scene').bind('change', function (event, ui) {
     page_settings_update()
   })
 
   // Each option on the page is monitored
+  $('#Scene_name').change(function () {
+    var scene = $('#scene option:selected').val()
+    data[scene].name = $(this).val()
+    socket.emit('data', data)
+  })
   $('#Scene_start').change(function () {
     var scene = $('#scene option:selected').val()
     data[scene].schedule.start = $(this).val()
