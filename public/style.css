@@ -29,6 +29,15 @@
   text-align: center;
 }
 
+#currentscene {
+  text-align: center;
+  color: purple;
+/*  border: solid; */
+  padding: 20px;
+  font-size: 30px;
+  font-weight: bold;
+}
+
 #countdown_name {
   text-align: center;
   color: purple;

@@ -5,6 +5,8 @@ var jsonfile = require('jsonfile')
 var file = './db/data.json'
 
 var data = {
+  'currentscene': 'Not Initialised',
+  'currentmedia': 'Not Initialised',
   'scene_one': {
     'name': 'Welcome',
     'schedule': {

@@ -19,10 +19,9 @@ var os = require("os")
 var usernum = 0
 
 // JSON Varibles
-// defined scenes, for each scene define settings
-// this will not save data if the server is restarted!!!
-// MUST BE CONVERTED TO DATABASE!!
 var data = {
+  'currentscene': 'Not Initialised',
+  'currentmedia': 'Not Initialised',
   'scene_one': {
     'name': 'scene one',
     'schedule': {
@@ -32,7 +31,8 @@ var data = {
       'DCA6': 0,
       'DCA7': 0,
       'MIX12': 0
-    }
+    },
+    'file': 'Not Initialised'
   },
   'scene_two': {
     'name': 'scene two',
@@ -43,7 +43,8 @@ var data = {
       'DCA6': 0,
       'DCA7': 0,
       'MIX12': 0
-    }
+    },
+    'file': 'Not Initialised'
   },
   'media_one': {
     'name': 'media one',
@@ -55,7 +56,7 @@ var data = {
       'DCA7': 0,
       'MIX12': 0
     },
-    'file': ''
+    'file': 'Not Initialised'
   },
   'media_two': {
     'name': '',
@@ -67,7 +68,7 @@ var data = {
       'DCA7': 0,
       'MIX12': 0
     },
-    'file': ''
+    'file': 'Not Initialised'
   },
   'x32address': {
     'DCA6': '/dca/6/fader',
@@ -123,7 +124,13 @@ jsonfile.readFile(file, function (err, obj) {
   }
   data = obj
   console.log('Database Read Successful')
+  // Update Schedules
   Scene_update()
+  // Load Scene One
+  // This ensures we start in a known location
+  // The delay on loading the database means that the webserver is started
+  // before data is updated.
+  scene_one()
 })
 
 // OSC SETUP
@@ -290,7 +297,9 @@ io.sockets.on('connection', function (socket) {
     console.log('Overrides Recieved')
 
     if (overrides.scene === 'scene_one') {
-      scene_one()
+      scene_one(function (val) {
+        console.log('aync function scene one ' + val)
+      })
     } else if (overrides.scene === 'scene_two') {
       scene_two()
     } else if (overrides.scene === 'media_one') {
@@ -362,8 +371,11 @@ function Scene_update () {
 }
 
 // Run Scenes when schedule fires
-function scene_one () {
-  console.log('scene one: ' + data.scene_one.name)
+// var scene_one = function (callback) {
+function scene_one (callback) {
+  console.log('Scene One: ' + data.scene_one.name)
+  // Set current Scene
+  data.currentscene = 'Scene One: ' + data.scene_one.name
 
   var converted = {
     'DCA6': 0,
@@ -378,10 +390,13 @@ function scene_one () {
   x32send(data.x32address, converted)
 
   // Add wepage for 'slide show'
+  // callback(1)
 }
 
 function scene_two () {
-  console.log('scene two: ' + data.scene_two.name)
+  console.log('Scene Two: ' + data.scene_two.name)
+  // Set current Scene
+  data.currentscene = 'Scene Two: ' + data.scene_two.name
 
   var converted = {
     'DCA6': 0,
@@ -400,7 +415,9 @@ function scene_two () {
 }
 
 function media_one () {
-  console.log('media one: ' + data.media_one.name)
+  console.log('Media One: ' + data.media_one.name)
+  // Set current Media
+  data.currentmedia = 'Media One: ' + data.media_one.name
 
   var converted = {
     'DCA6': 0,
@@ -415,11 +432,13 @@ function media_one () {
   x32send(data.x32address, converted)
 
   // ADD AUDIO & VIDEO PLAYBACK HERE
-  omxctrl.play('/home/pi/media/Georgia-10-min+silence_2.m4a')
+  omxctrl.play('/home/pi/VineyardMediaController/public/media/Georgia-10-min+silence_2.m4a')
 }
 
 function media_two () {
-  console.log('media two: ' + data.media_two.name)
+  console.log('Media Two: ' + data.media_two.name)
+  // Set current Media
+  data.currentmedia = 'Media Two: ' + data.media_two.name
 
   var converted = {
     'DCA6': 0,
@@ -434,7 +453,7 @@ function media_two () {
   x32send(data.x32address, converted)
 
   // ADD AUDIO & VIDEO PLAYBACK HERE
-  omxctrl.play('/home/pi/media/WtE-Countdown-v3-720p_2.mp4')
+  omxctrl.play('/home/pi/VineyardMediaController/public/media/WtE-Countdown-v3-720p_2.mp4')
 }
 
 // Send OSC data called when scenes run
