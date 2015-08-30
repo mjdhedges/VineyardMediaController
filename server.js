@@ -293,19 +293,29 @@ io.sockets.on('connection', function (socket) {
   // Waits for override
   socket.on('override', function (recieved_overrides) {
     overrides = recieved_overrides
-    // socket.broadcast.emit('override', overrides)
     console.log('Overrides Recieved')
-
     if (overrides.scene === 'scene_one') {
-      scene_one(function (val) {
-        console.log('aync function scene one ' + val)
+      scene_one(function () {
+        // send to this connection
+        socket.emit('data', data)
+        // send to all other connections, this is a bodge
+        socket.broadcast.emit('data', data)
       })
     } else if (overrides.scene === 'scene_two') {
-      scene_two()
+      scene_two(function () {
+        socket.emit('data', data)
+        socket.broadcast.emit('data', data)
+      })
     } else if (overrides.scene === 'media_one') {
-      media_one()
+      media_one(function () {
+        socket.emit('data', data)
+        socket.broadcast.emit('data', data)
+      })
     } else if (overrides.scene === 'media_two') {
-      media_two()
+      media_two(function () {
+        socket.emit('data', data)
+        socket.broadcast.emit('data', data)
+      })
     } else {
       console.log('Error: Override failed')
     }
@@ -390,10 +400,13 @@ function scene_one (callback) {
   x32send(data.x32address, converted)
 
   // Add wepage for 'slide show'
-  // callback(1)
+
+  if (callback) {
+    callback()
+  }
 }
 
-function scene_two () {
+function scene_two (callback) {
   console.log('Scene Two: ' + data.scene_two.name)
   // Set current Scene
   data.currentscene = 'Scene Two: ' + data.scene_two.name
@@ -412,9 +425,12 @@ function scene_two () {
 
   // Webpage for 'Please take your seat'
 
+  if (callback) {
+    callback()
+  }
 }
 
-function media_one () {
+function media_one (callback) {
   console.log('Media One: ' + data.media_one.name)
   // Set current Media
   data.currentmedia = 'Media One: ' + data.media_one.name
@@ -433,9 +449,13 @@ function media_one () {
 
   // ADD AUDIO & VIDEO PLAYBACK HERE
   omxctrl.play('/home/pi/VineyardMediaController/public/media/Georgia-10-min+silence_2.m4a')
+
+  if (callback) {
+    callback()
+  }
 }
 
-function media_two () {
+function media_two (callback) {
   console.log('Media Two: ' + data.media_two.name)
   // Set current Media
   data.currentmedia = 'Media Two: ' + data.media_two.name
@@ -454,6 +474,10 @@ function media_two () {
 
   // ADD AUDIO & VIDEO PLAYBACK HERE
   omxctrl.play('/home/pi/VineyardMediaController/public/media/WtE-Countdown-v3-720p_2.mp4')
+
+  if (callback) {
+    callback()
+  }
 }
 
 // Send OSC data called when scenes run
