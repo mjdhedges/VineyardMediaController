@@ -1,6 +1,6 @@
-@media only screen and (min-width: 800px){
+@media only screen and (min-width: 700px){
   .ui-content {
-   width: 800px !important;
+   width: 700px !important;
    margin: 0 auto !important;
    position: relative !important;
 }

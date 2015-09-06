@@ -85,7 +85,7 @@ var overrides = {
 }
 
 var x32config = {
-  'ip': '127.0.0.1',
+  'ip': '192.168.0.12',
   'port': 10023
 }
 
@@ -174,17 +174,22 @@ http.listen(serverport, function () {
 })
 
 // OMXPLAYER listen for responses
-omxctrl.on('playing', function (filename) {
-  console.log('omxplayer: playing ', filename)
-})
 omxctrl.on('ended', function () {
   console.log('omxplayer: playback has ended')
+  if (data.currentscene === 'Scene One: ' + data.scene_one.name) {
+    console.log('returning to Scene One')
+    scene_one()
+  } else if (data.currentscene === 'Scene Two: ' + data.scene_two.name) {
+    console.log('returning to Scene Two')
+    scene_two()
+  }
 })
 
 // BROWSER IO
 // define interaction with clients
 io.sockets.on('connection', function (socket) {
   // Give users a number
+  
   usernum++
   // Find users ip address
   var clientaddress = socket.request.connection.remoteAddress
@@ -287,7 +292,12 @@ io.sockets.on('connection', function (socket) {
     socket.broadcast.emit('data', data)
     console.log('Data Recieved')
     Write()
-    Scene_update()
+    Scene_update(function () {
+      // send to this connection
+      socket.emit('data', data)
+      // send to all other connections, this is a bodge
+      socket.broadcast.emit('data', data)
+    })
   })
 
   // Waits for override
@@ -345,7 +355,7 @@ function Write () {
 }
 
 // Update Scene Schedule
-function Scene_update () {
+function Scene_update (callback) {
   // Should probally check for changes and only restarted changed schedules
 
   // Clear Current Schedules
@@ -372,6 +382,7 @@ function Scene_update () {
 
   // Restart Schedules with Updated times
   scene_one_tick = later.setInterval(scene_one, scene_one_occur)
+  console.log('scene_one_tick')
   scene_two_tick = later.setInterval(scene_two, scene_two_occur)
   media_one_tick = later.setInterval(media_one, media_one_occur)
   media_two_tick = later.setInterval(media_two, media_two_occur)
@@ -401,6 +412,7 @@ function scene_one (callback) {
 
   // Add wepage for 'slide show'
 
+  // If a callback function is not assigned callback is not sent avoiding error
   if (callback) {
     callback()
   }
@@ -448,8 +460,8 @@ function media_one (callback) {
   x32send(data.x32address, converted)
 
   // ADD AUDIO & VIDEO PLAYBACK HERE
-  omxctrl.play('/home/pi/VineyardMediaController/public/media/Georgia-10-min+silence_2.m4a')
-
+  omxctrl.play('/home/pi/VineyardMediaController/public/media/Georgia-10-min.ogg')
+  
   if (callback) {
     callback()
   }
@@ -473,7 +485,7 @@ function media_two (callback) {
   x32send(data.x32address, converted)
 
   // ADD AUDIO & VIDEO PLAYBACK HERE
-  omxctrl.play('/home/pi/VineyardMediaController/public/media/WtE-Countdown-v3-720p_2.mp4')
+  omxctrl.play('/home/pi/VineyardMediaController/public/media/WtE-Countdown-v3-720p_2_SHORT.mp4')
 
   if (callback) {
     callback()
@@ -484,7 +496,7 @@ function media_two (callback) {
 function x32send (address, values) {
   // fade faders over a 2sec
   var time = 2000            // ms
-  var rate = 20              // number of sends per second
+  var rate = 30              // number of sends per second
   var delay = 1000 / rate      // time between sends ms
   var num = (rate / 1000) * time // total number of steps
   var n = 0                  // counter
