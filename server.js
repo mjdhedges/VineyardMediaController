@@ -10,7 +10,7 @@ var async = require('async')
 var osc = require('osc')
 var omxctrl = require('omxctrl')
 var jsonfile = require('jsonfile')
-var os = require("os")
+var os = require('os')
 
 // Internal Modules
 // var convert = require('./convert.js')
@@ -85,7 +85,7 @@ var overrides = {
 }
 
 var x32config = {
-  'ip': '192.168.0.12',
+  'ip': '10.0.68.131',
   'port': 10023
 }
 
@@ -114,7 +114,7 @@ var scene_two_tick = later.setInterval(scene_two, scene_two_occur)
 var media_one_tick = later.setInterval(media_one, media_one_occur)
 var media_two_tick = later.setInterval(media_two, media_two_occur)
 
-// Load data from json
+// LOAD DATA FROM JSON
 // As this is async it will take a while to come back and so the schedules need
 // reinitalising
 var file = './db/data.json'
@@ -134,27 +134,59 @@ jsonfile.readFile(file, function (err, obj) {
 })
 
 // OSC SETUP
+// Function to Find IP Address later used in OSC setup
+var getIPAddresses = function () {
+  var interfaces = os.networkInterfaces()
+  var ipAddresses = []
+
+  for (var deviceName in interfaces) {
+    var addresses = interfaces[deviceName]
+    for (var i = 0; i < addresses.length; i++) {
+      var addressInfo = addresses[i]
+      if (addressInfo.family === 'IPv4' && !addressInfo.internal) {
+        ipAddresses.push(addressInfo.address)
+      }
+    }
+  }
+  return ipAddresses
+}
 // Create an osc.js UDP Port listening on port 10023
 var osc = new osc.UDPPort({
   localAddress: '0.0.0.0',
   localPort: 10024
 })
-console.log('OSC Client sending to ' + x32config.ip + ':' + x32config.port)
-
-// Open the socket
-osc.open()
-console.log('OSC Server Listening on ' + '0.0.0.0:' + x32config.port)
-// Set X32 to return changes, times out after 10s
-setInterval(function () {
-  osc.send({
-    address: '/info'
-  }, x32config.ip, x32config.port)
-}, 5000)
-
+console.log('OSC Sending over UDP')
+console.log(' Host: ' + x32config.ip + ', Port: ' + x32config.port)
+// events
+osc.on('ready', function () {
+  var ipAddresses = getIPAddresses()
+  console.log('OSC Listening over UDP')
+  ipAddresses.forEach(function (address) {
+    console.log(' Host:' + address + ', Port:', osc.options.localPort)
+  })
+})
 // Listen for incoming OSC bundles
 osc.on('bundle', function (oscBundle) {
-  console.log('An OSC bundle just arrived!', oscBundle)
+  console.log('OSC Bundle: ', oscBundle)
 })
+osc.on('message', function (oscMessage) {
+  console.log('OSC Message: ', oscMessage)
+})
+osc.on('error', function (err) {
+  console.log('OSC Error: ' + err)
+})
+// open sockets
+osc.open()
+// ask for x32 info, this isn't used but checks the desk is returning data
+osc.send({
+  address: '/info'
+}, x32config.ip, x32config.port)
+// Set X32 to return changes, x32 times out after 10s
+setInterval(function () {
+  osc.send({
+    address: '/xcontrol'
+  }, x32config.ip, x32config.port)
+}, 8000)
 
 // WEBSERVER SETUP
 // find hostname and define port
@@ -170,7 +202,10 @@ app.get('/', function (req, res) {
 })
 // starts web server on port 8888
 http.listen(serverport, function () {
-  console.log('webserver listening on ' + serverhostname + ':' + serverport)
+  var ipAddresses = getIPAddresses()
+  console.log('Webserver listening on ' + serverhostname + ':' + serverport)
+  console.log(' Host: ' + serverhostname + ', Port: ' + serverport)
+  console.log(' Host: ' + ipAddresses + ', Port: ' + serverport)
 })
 
 // OMXPLAYER listen for responses
@@ -189,7 +224,7 @@ omxctrl.on('ended', function () {
 // define interaction with clients
 io.sockets.on('connection', function (socket) {
   // Give users a number
-  
+
   usernum++
   // Find users ip address
   var clientaddress = socket.request.connection.remoteAddress
@@ -305,26 +340,34 @@ io.sockets.on('connection', function (socket) {
     overrides = recieved_overrides
     console.log('Overrides Recieved')
     if (overrides.scene === 'scene_one') {
-      scene_one(function () {
+      scene_one(function (clientcontent) {
         // send to this connection
         socket.emit('data', data)
+        socket.emit('client', clientcontent)
         // send to all other connections, this is a bodge
         socket.broadcast.emit('data', data)
+        socket.broadcast.emit('client', clientcontent)
       })
     } else if (overrides.scene === 'scene_two') {
-      scene_two(function () {
+      scene_two(function (clientcontent) {
         socket.emit('data', data)
+        socket.emit('client', clientcontent)
         socket.broadcast.emit('data', data)
+        socket.broadcast.emit('client', clientcontent)
       })
     } else if (overrides.scene === 'media_one') {
-      media_one(function () {
+      media_one(function (clientcontent) {
         socket.emit('data', data)
+        socket.emit('client', clientcontent)
         socket.broadcast.emit('data', data)
+        socket.broadcast.emit('client', clientcontent)
       })
     } else if (overrides.scene === 'media_two') {
-      media_two(function () {
+      media_two(function (clientcontent) {
         socket.emit('data', data)
+        socket.emit('client', clientcontent)
         socket.broadcast.emit('data', data)
+        socket.broadcast.emit('client', clientcontent)
       })
     } else {
       console.log('Error: Override failed')
@@ -410,11 +453,14 @@ function scene_one (callback) {
   // Send fader positions to X32
   x32send(data.x32address, converted)
 
-  // Add wepage for 'slide show'
-
-  // If a callback function is not assigned callback is not sent avoiding error
+  // Sends html to client.html
+  var clientcontent =
+  '\
+     <iframe id="risevision" src="http://preview.risevision.com/Viewer.html?type=presentation&id=72af8c57-b823-4288-ac64-04bd3bd640da">\
+     </iframe>\
+  '
   if (callback) {
-    callback()
+    return callback(clientcontent)
   }
 }
 
@@ -435,10 +481,14 @@ function scene_two (callback) {
   // Send fader positions to X32
   x32send(data.x32address, converted)
 
-  // Webpage for 'Please take your seat'
-
+  // Sends html to client.html
+  var clientcontent =
+  '\
+     <iframe id="risevision" src="http://preview.risevision.com/Viewer.html?type=presentation&id=72af8c57-b823-4288-ac64-04bd3bd640da">\
+     </iframe>\
+  '
   if (callback) {
-    callback()
+    return callback(clientcontent)
   }
 }
 
@@ -461,9 +511,22 @@ function media_one (callback) {
 
   // ADD AUDIO & VIDEO PLAYBACK HERE
   omxctrl.play('/home/pi/VineyardMediaController/public/media/Georgia-10-min.ogg')
-  
+
+  // Sends html to client.html
+  var clientcontent =
+  '\
+  <iframe id="risevision" src="http://preview.risevision.com/Viewer.html?type=presentation&id=72af8c57-b823-4288-ac64-04bd3bd640da">\
+  </iframe>\
+    <div class="videoContainer">\
+      <audio autoplay="">\
+        <source src="http://RASPBERRYPI/media/Georgia-10-min.ogg" type="audio/ogg">\
+        Audio Not Supported\
+      </audio>\
+    </div>\
+  '
+
   if (callback) {
-    callback()
+    return callback(clientcontent)
   }
 }
 
@@ -487,8 +550,19 @@ function media_two (callback) {
   // ADD AUDIO & VIDEO PLAYBACK HERE
   omxctrl.play('/home/pi/VineyardMediaController/public/media/WtE-Countdown-v3-720p_2_SHORT.mp4')
 
+  // Sends html to client.html
+  // Sends html to client.html
+  var clientcontent =
+  '\
+    <div class="videoContainer">\
+      <video autoplay="">\
+        <source src="http://RASPBERRYPI/media/WtE-Countdown-v3-720p_2.mp4" type="video/mp4">\
+        Video Not Supported\
+      </video>\
+    </div>\
+  '
   if (callback) {
-    callback()
+    callback(clientcontent)
   }
 }
 
@@ -541,6 +615,9 @@ function x32send (address, values) {
         setTimeout(callback, delay)
       },
       function (err) {
+        if (err) {
+          throw (err)
+        }
         console.log(' Fade complete')
         // These must be placed in here otherwise node will execute them
         // between the setTimeout delay as it is async.
