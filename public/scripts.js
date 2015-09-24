@@ -64,7 +64,7 @@ $(document).on('pageinit', function () {
   })
 
   // Monitor changes to update GUI
-  $('#scene').unbind('change').bind('change', function (event, ui) {
+  $('#scene').bind('change', function (event, ui) {
     page_update()
   })
 

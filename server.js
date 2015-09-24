@@ -18,7 +18,7 @@ var os = require('os')
 // Varibles
 var usernum = 0
 
-// JSON Varibles
+// Object Varibles
 var data = {
   'currentscene': 'Not Initialised',
   'currentmedia': 'Not Initialised',
@@ -97,6 +97,8 @@ var current = {
 }
 
 // Scheduling using Later.js
+// Use local time
+later.date.localTime()
 // Initialise Occurances using saved data
 // .on(1). Sunday
 var scene_one_occur = later.parse.recur().every(1).dayOfWeek().on(data.scene_one.schedule.start).time()
@@ -240,86 +242,86 @@ io.sockets.on('connection', function (socket) {
   // Clock used to check data comms (can be disabled)
   // Once connection is established send date to client at interval
   var interval_date = setInterval(function () {
-      var now = new Date().toISOString().replace(/T/, ' ').replace(/\..+/, '')
-      socket.emit('date', now)
-    }, 1000)
+    // var now = new Date().toISOString().replace(/T/, ' ').replace(/\..+/, '')
+    var now = moment().format('DD-MM-YYYY HH:mm:ss')
+    socket.emit('date', now)
+  }, 1000)
 
   // Once connection is established send countdown timer
   // TEMP CODE
   var interval_countdown = setInterval(function () {
-      var countdown = {
-        'scene': 'none',
-        'days': 0,
-        'hours': 0,
-        'minutes': 0,
-        'seconds': 0
-      }
-      var then = 0
+    var countdown = {
+      'scene': 'none',
+      'days': 0,
+      'hours': 0,
+      'minutes': 0,
+      'seconds': 0
+    }
+    var then = 0
 
-      // get the current time using moment
-      var now = moment()
+    // get the current time using moment
+    var now = moment()
 
-      // Generate moments for the next schedules
-      var scene_one_schedule_next = moment(scene_one_schedule.next(1))
-      var scene_two_schedule_next = moment(scene_two_schedule.next(1))
-      var media_one_schedule_next = moment(media_one_schedule.next(1))
-      var media_two_schedule_next = moment(media_two_schedule.next(1))
+    // Generate moments for the next schedules
+    var scene_one_schedule_next = moment(scene_one_schedule.next(1))
+    var scene_two_schedule_next = moment(scene_two_schedule.next(1))
+    var media_one_schedule_next = moment(media_one_schedule.next(1))
+    var media_two_schedule_next = moment(media_two_schedule.next(1))
+    // ms till event
+    var scene_one_schedule_next_ms = scene_one_schedule_next.diff(now, 'milliseconds', true)
+    var scene_two_schedule_next_ms = scene_two_schedule_next.diff(now, 'milliseconds', true)
+    var media_one_schedule_next_ms = media_one_schedule_next.diff(now, 'milliseconds', true)
+    var media_two_schedule_next_ms = media_two_schedule_next.diff(now, 'milliseconds', true)
 
-      // ms till event
-      var scene_one_schedule_next_ms = scene_one_schedule_next.diff(now, 'milliseconds', true)
-      var scene_two_schedule_next_ms = scene_two_schedule_next.diff(now, 'milliseconds', true)
-      var media_one_schedule_next_ms = media_one_schedule_next.diff(now, 'milliseconds', true)
-      var media_two_schedule_next_ms = media_two_schedule_next.diff(now, 'milliseconds', true)
+    //  console.log(scene_one_schedule_next_ms + ', ' +
+    //              scene_two_schedule_next_ms + ', ' +
+    //              media_one_schedule_next_ms + ', ' +
+    //              media_two_schedule_next_ms + ', '
+    //  )
 
-      //  console.log(scene_one_schedule_next_ms + ', ' +
-      //              scene_two_schedule_next_ms + ', ' +
-      //              media_one_schedule_next_ms + ', ' +
-      //              media_two_schedule_next_ms + ', '
-      //  )
+    // if x is less than y or x is less than z or x is less than f
+    if (scene_one_schedule_next_ms < scene_two_schedule_next_ms && scene_one_schedule_next_ms < media_one_schedule_next_ms && scene_one_schedule_next_ms < media_two_schedule_next_ms) {
+      then = scene_one_schedule_next
+      countdown.scene = 'Scene One: ' + data.scene_one.name
+    } else if (scene_two_schedule_next_ms < media_one_schedule_next_ms && scene_two_schedule_next_ms < media_two_schedule_next_ms) {
+      then = scene_two_schedule_next
+      countdown.scene = 'Scene Two: ' + data.scene_two.name
+    } else if (media_one_schedule_next_ms < media_two_schedule_next_ms) {
+      then = media_one_schedule_next
+      countdown.scene = 'Media One: ' + data.media_one.name
+    } else {
+      then = media_two_schedule_next
+      countdown.scene = 'Media Two: ' + data.media_two.name
+    }
 
-      // if x is less than y or x is less than z or x is less than f
-      if (scene_one_schedule_next_ms < scene_two_schedule_next_ms && scene_one_schedule_next_ms < media_one_schedule_next_ms && scene_one_schedule_next_ms < media_two_schedule_next_ms) {
-        then = scene_one_schedule_next
-        countdown.scene = 'Scene One: ' + data.scene_one.name
-      } else if (scene_two_schedule_next_ms < media_one_schedule_next_ms && scene_two_schedule_next_ms < media_two_schedule_next_ms) {
-        then = scene_two_schedule_next
-        countdown.scene = 'Scene Two: ' + data.scene_two.name
-      } else if (media_one_schedule_next_ms < media_two_schedule_next_ms) {
-        then = media_one_schedule_next
-        countdown.scene = 'Media One: ' + data.media_one.name
-      } else {
-        then = media_two_schedule_next
-        countdown.scene = 'Media Two: ' + data.media_two.name
-      }
+    // calculate the difference in milliseconds
+    var ms = then.diff(now, 'milliseconds', true)
+    // calculate the number of days to go
+    countdown.days = math.floor(moment.duration(ms).asDays())
+    // subtract from ms
+    then = then.subtract(countdown.days, 'days')
+    // update the duration of ms
+    ms = then.diff(now, 'milliseconds', true)
+    // calculate the number of hours to go
+    countdown.hours = math.floor(moment.duration(ms).asHours())
+    // subtract from ms
+    then = then.subtract(countdown.hours, 'hours')
+    // update the duration of ms
+    ms = then.diff(now, 'milliseconds', true)
+    // calculate the number of minutes to go
+    countdown.minutes = math.floor(moment.duration(ms).asMinutes())
+    // subtract from ms
+    then = then.subtract(countdown.minutes, 'minutes')
+    // update the duration of ms
+    ms = then.diff(now, 'milliseconds', true)
+    // calculate the number of seconds to go
+    countdown.seconds = math.floor(moment.duration(ms).asSeconds())
+    // send countdown object
 
-      // calculate the difference in milliseconds
-      var ms = then.diff(now, 'milliseconds', true)
-      // calculate the number of days to go
-      countdown.days = math.floor(moment.duration(ms).asDays())
-      // subtract from ms
-      then = then.subtract(countdown.days, 'days')
-      // update the duration of ms
-      ms = then.diff(now, 'milliseconds', true)
-      // calculate the number of hours to go
-      countdown.hours = math.floor(moment.duration(ms).asHours())
-      // subtract from ms
-      then = then.subtract(countdown.hours, 'hours')
-      // update the duration of ms
-      ms = then.diff(now, 'milliseconds', true)
-      // calculate the number of minutes to go
-      countdown.minutes = math.floor(moment.duration(ms).asMinutes())
-      // subtract from ms
-      then = then.subtract(countdown.minutes, 'minutes')
-      // update the duration of ms
-      ms = then.diff(now, 'milliseconds', true)
-      // calculate the number of seconds to go
-      countdown.seconds = math.floor(moment.duration(ms).asSeconds())
-      // send countdown object
+    // console.log(countdown)
 
-      // console.log(countdown)
-
-      socket.emit('countdown', countdown)
-    }, 1000)
+    socket.emit('countdown', countdown)
+  }, 1000)
 
   // Waits for data
   socket.on('data', function (recieved_data) {
@@ -364,15 +366,14 @@ io.sockets.on('connection', function (socket) {
       })
     } else if (overrides.scene === 'media_two') {
       media_two(function (clientcontent) {
-        socket.emit('data', data)
-        socket.emit('client', clientcontent)
-        socket.broadcast.emit('data', data)
-        socket.broadcast.emit('client', clientcontent)
+        // socket.emit('data', data)
+        // socket.emit('client', clientcontent)
+        // socket.broadcast.emit('data', data)
+        // socket.broadcast.emit('client', clientcontent)
       })
     } else {
       console.log('Error: Override failed')
     }
-
   })
 
   // On Disconnection
@@ -561,6 +562,11 @@ function media_two (callback) {
       </video>\
     </div>\
   '
+  //io.emit('data', data)
+  //io.emit('client', clientcontent)
+  //io.broadcast.emit('data', data)
+  //io.broadcast.emit('client', clientcontent)
+
   if (callback) {
     callback(clientcontent)
   }
